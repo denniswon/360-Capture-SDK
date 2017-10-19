@@ -12,14 +12,14 @@ namespace FBCapture {
   namespace Video {
 
     VideoEncoder::VideoEncoder(FBCaptureEncoderDelegate *mainDelegate,
-      EncodePacketProcessorDelegate *processorDelegate,
-      GraphicsCardType graphicsCardType,
-      ID3D11Device* device,
-      uint32_t bitrate,
-      uint32_t fps,
-      uint32_t gop,
-      bool flipTexture,
-      bool enableAsyncMode) :
+                               EncodePacketProcessorDelegate *processorDelegate,
+                               GraphicsCardType graphicsCardType,
+                               ID3D11Device* device,
+                               uint32_t bitrate,
+                               uint32_t fps,
+                               uint32_t gop,
+                               bool flipTexture,
+                               bool enableAsyncMode) :
       FBCaptureEncoderModule(mainDelegate, processorDelegate),
       graphicsCardType_(graphicsCardType),
       device_(device),

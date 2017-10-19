@@ -5,29 +5,28 @@
 #include "mp4videorotationmodes.h"
 
 #ifdef __cplusplus
-namespace libmp4operations {
+namespace libmp4operations
+{
 
-  extern "C"
-  {
+extern "C"
+{
 #endif // __cplusplus
 
 #define UNKNOWN_FRAMES_PER_SECOND           (0)
 #define DEFAULT_SUGGESTED_FRAMES_PER_SECOND (30)
 #define NO_DURATION_SPECIFIED               (FLT_MAX)
 
-    uint32_t mp4muxAVStreams(
-      const char* pStrAudioStreamInputFilename,
-      const char* pStrVideoStreamInputFilename,
-      const char* pStrOutputFilename,
-      float fAudioStartTime, // = 0.0f,
-      float fVideoStartTime, // = 0.0f,
-      float fTargetDuration, // = NO_DURATION_SPECIFIED,
-      float fSuggestedFPS,   // = UNKNOWN_FRAMES_PER_SECOND
-      eVideoRotationMode nVideoRotationMode,
-      bool bQuickTimeMuxFlavor
-    );
+uint32_t mp4muxAVStreams(const char* pStrAudioStreamInputFilename,
+                      const char* pStrVideoStreamInputFilename,
+                      const char* pStrOutputFilename,
+                      float fAudioStartTime, // = 0.0f,
+                      float fVideoStartTime, // = 0.0f,
+                      float fTargetDuration, // = NO_DURATION_SPECIFIED,
+                      float fSuggestedFPS,   // = UNKNOWN_FRAMES_PER_SECOND
+                      eVideoRotationMode nVideoRotationMode,
+                      bool bQuickTimeMuxFlavor);
 #ifdef __cplusplus
-  }
+}
 
 }; // namespace libmp4operations
 #endif // __cplusplus

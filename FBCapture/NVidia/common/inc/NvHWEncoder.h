@@ -208,9 +208,9 @@ public:
   virtual ~CNvHWEncoder();
   NVENCSTATUS                                          Initialize(void* device, NV_ENC_DEVICE_TYPE deviceType);
   NVENCSTATUS                                          NvEncEncodeFrame(EncodeBuffer *pEncodeBuffer, NvEncPictureCommand *encPicCommand,
-    uint32_t width, uint32_t height, uint64_t timestamp,
-    NV_ENC_PIC_STRUCT ePicStruct = NV_ENC_PIC_STRUCT_FRAME,
-    int8_t *qpDeltaMapArray = NULL, uint32_t qpDeltaMapArraySize = 0);
+                                                                        uint32_t width, uint32_t height, uint64_t timestamp,
+                                                                        NV_ENC_PIC_STRUCT ePicStruct = NV_ENC_PIC_STRUCT_FRAME,
+                                                                        int8_t *qpDeltaMapArray = NULL, uint32_t qpDeltaMapArraySize = 0);
   NVENCSTATUS                                          CreateEncoder(EncodeConfig *pEncCfg);
   GUID                                                 GetPresetGUID(char* encoderPreset, int codec);
   NVENCSTATUS                                          ProcessOutput(const EncodeBuffer *pEncodeBuffer, void **buffer, UINT32 *length, UINT64 *timestamp, UINT64 *duration, UINT32 *frameIdx, bool* is_keyframe);

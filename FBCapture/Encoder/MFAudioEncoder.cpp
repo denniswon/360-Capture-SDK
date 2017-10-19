@@ -76,11 +76,11 @@ namespace FBCapture {
         ppType->GetUINT32(MF_MT_AUDIO_NUM_CHANNELS, &nChannels);
 
         if (mediaMajorType == MFMediaType_Audio &&
-          mediaSubType == MFAudioFormat_PCM &&
-          // MF AAC Encoder only allows 16 bit depth input sample media types
-          bitDepth == 16 &&
-          samplesPerSec == inWavFormat->nSamplesPerSec &&
-          nChannels == AudioBuffer::kSTEREO) {
+            mediaSubType == MFAudioFormat_PCM &&
+            // MF AAC Encoder only allows 16 bit depth input sample media types
+            bitDepth == 16 &&
+            samplesPerSec == inWavFormat->nSamplesPerSec &&
+            nChannels == AudioBuffer::kSTEREO) {
 
           CHECK_HR(inputMediaType->SetGUID(MF_MT_MAJOR_TYPE, mediaMajorType));
           CHECK_HR(inputMediaType->SetGUID(MF_MT_SUBTYPE, mediaSubType));
@@ -142,11 +142,11 @@ namespace FBCapture {
         ppType->GetUINT32(MF_MT_AUDIO_BLOCK_ALIGNMENT, &blockAlign);
 
         if (mediaMajorType == MFMediaType_Audio &&
-          mediaSubType == MFAudioFormat_AAC &&
-          bitDepth == inputBitDepth &&
-          samplesPerSec == inputSampleRate &&
-          nChannels == inputNumChannels &&
-          payloadType == AAC_PAYLOAD_TYPE) {
+            mediaSubType == MFAudioFormat_AAC &&
+            bitDepth == inputBitDepth &&
+            samplesPerSec == inputSampleRate &&
+            nChannels == inputNumChannels &&
+            payloadType == AAC_PAYLOAD_TYPE) {
 
           CHECK_HR(outputMediaType->SetGUID(MF_MT_MAJOR_TYPE, mediaMajorType));
           CHECK_HR(outputMediaType->SetGUID(MF_MT_SUBTYPE, mediaSubType));

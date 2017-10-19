@@ -24,7 +24,7 @@ namespace FBCapture {
     class FBCaptureEncoderModule : public FBCaptureModule {
     public:
       FBCaptureEncoderModule(FBCaptureEncoderDelegate *mainDelegate,
-        EncodePacketProcessorDelegate *processorDelegate) :
+                             EncodePacketProcessorDelegate *processorDelegate) :
         FBCaptureModule(mainDelegate),
         processor(processorDelegate) {}
       virtual ~FBCaptureEncoderModule() {}

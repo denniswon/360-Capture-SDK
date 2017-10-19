@@ -18,7 +18,7 @@ namespace FBCapture {
     const string Transmuxer::kStitchingSoftware = "Facebook 360 Capture SDK";
 
     Transmuxer::Transmuxer(FBCaptureDelegate *mainDelegate,
-      bool enableAsyncMode) :
+                           bool enableAsyncMode) :
       FBCaptureModule(mainDelegate),
       h264FilePath_(NULL),
       aacFilePath_(NULL),
@@ -31,8 +31,8 @@ namespace FBCapture {
     }
 
     FBCAPTURE_STATUS Transmuxer::setInput(const string* h264FilePath,
-      const string* aacFilePath,
-      const string* mp4FilePath) {
+                                          const string* aacFilePath,
+                                          const string* mp4FilePath) {
       h264FilePath_ = h264FilePath;
       aacFilePath_ = aacFilePath;
       mp4FilePath_ = mp4FilePath;

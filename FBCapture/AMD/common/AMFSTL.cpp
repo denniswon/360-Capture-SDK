@@ -392,7 +392,7 @@ amf_string AMF_STD_CALL amf::amf_from_unicode_to_url_utf8(const amf_wstring& dat
   for (amf_size i = 0; i < num; i++) {
     if ((converted[i] <= 0x20) || (converted[i] >= 0x7F) ||
       (bQuery && (AMF_FORBIDDEN_SYMBOLS.find(converted[i]) != amf_string::npos)) ||
-      (!bQuery && (AMF_FORBIDDEN_SYMBOLS_QUERY.find(converted[i]) != amf_string::npos))) {
+        (!bQuery && (AMF_FORBIDDEN_SYMBOLS_QUERY.find(converted[i]) != amf_string::npos))) {
       _snprintf(buf, 20, "%%%02X", (unsigned int)(unsigned char)converted[i]);
     } else {
       buf[0] = converted[i];

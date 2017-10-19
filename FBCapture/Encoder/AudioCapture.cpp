@@ -232,8 +232,8 @@ namespace FBCapture {
 
         // Sanity check for input and output audio mixing
         CHECK_HR_STATUS(inputPWFX->nSamplesPerSec == outputPWFX->nSamplesPerSec &&
-          inputPWFX->wBitsPerSample == outputPWFX->wBitsPerSample ? S_OK : E_FAIL,
-          FBCAPTURE_AUDIO_CAPTURE_UNSUPPORTED_AUDIO_SOURCE
+                        inputPWFX->wBitsPerSample == outputPWFX->wBitsPerSample ? S_OK : E_FAIL,
+                        FBCAPTURE_AUDIO_CAPTURE_UNSUPPORTED_AUDIO_SOURCE
         );
 
         mixMic_ = mixMic;

@@ -65,8 +65,8 @@ namespace FBCapture {
   FBCAPTURE_STATUS Mute(FBCAPTURE_HANDLE handle, bool mute) {
     FBCaptureMain* fbCapture = reinterpret_cast<FBCaptureMain*>(handle);
     if (!fbCapture ||
-      !(fbCapture->getSessionStatus() == FBCAPTURE_SESSION_INITIALIZED ||
-        fbCapture->getSessionStatus() == FBCAPTURE_SESSION_ACTIVE))
+        !(fbCapture->getSessionStatus() == FBCAPTURE_SESSION_INITIALIZED ||
+          fbCapture->getSessionStatus() == FBCAPTURE_SESSION_ACTIVE))
       return FBCAPTURE_INVALID_FUNCTION_CALL;
 
     return fbCapture->mute(mute);

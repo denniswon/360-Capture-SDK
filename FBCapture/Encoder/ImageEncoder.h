@@ -9,9 +9,9 @@ namespace FBCapture {
     class ImageEncoder : public FBCaptureModule {
     public:
       ImageEncoder(FBCaptureDelegate *mainDelegate,
-        GraphicsCardType graphicsCardType,
-        ID3D11Device* device,
-        bool enableAsyncMode);
+                   GraphicsCardType graphicsCardType,
+                   ID3D11Device* device,
+                   bool enableAsyncMode);
       ~ImageEncoder();
 
       FBCAPTURE_STATUS setInput(const void *texturePtr, DestinationURL dstUrl, bool flipTexture);

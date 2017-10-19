@@ -11,14 +11,14 @@ namespace FBCapture {
     class VideoEncoder : public FBCaptureEncoderModule {
     public:
       VideoEncoder(FBCaptureEncoderDelegate *mainDelegate,
-        EncodePacketProcessorDelegate *processorDelegate,
-        GraphicsCardType type,
-        ID3D11Device* device,
-        uint32_t bitrate,
-        uint32_t fps,
-        uint32_t gop,
-        bool flipTexture,
-        bool enableAsyncMode);
+                   EncodePacketProcessorDelegate *processorDelegate,
+                   GraphicsCardType type,
+                   ID3D11Device* device,
+                   uint32_t bitrate,
+                   uint32_t fps,
+                   uint32_t gop,
+                   bool flipTexture,
+                   bool enableAsyncMode);
       ~VideoEncoder();
 
       FBCAPTURE_STATUS encode(const void *texturePtr);

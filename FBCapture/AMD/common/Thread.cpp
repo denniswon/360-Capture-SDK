@@ -77,7 +77,7 @@ namespace amf {
   //----------------------------------------------------------------------------
   AMFMutex::AMFMutex(bool bInitiallyOwned, const wchar_t* pName
 #if defined(_WIN32)
-    , bool bOpenExistent
+                     , bool bOpenExistent
 #endif
   ) :m_hSyncObject() {
 #if defined(_WIN32)

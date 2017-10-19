@@ -64,15 +64,15 @@ namespace FBCapture {
     processor = new EncodePacketProcessor();
 
     videoEncoder = new VideoEncoder(this, processor,
-      graphicsCardType, device,
-      config->bitrate, config->fps, config->gop,
-      config->flipTexture, config->enableAsyncMode);
+                                    graphicsCardType, device,
+                                    config->bitrate, config->fps, config->gop,
+                                    config->flipTexture, config->enableAsyncMode);
 
     audioEncoder = new AudioEncoder(this, processor,
-      config->mute, config->mixMic, config->useRiftAudioSources);
+                                    config->mute, config->mixMic, config->useRiftAudioSources);
 
     imageEncoder = new ImageEncoder(this,
-      graphicsCardType, device, true);
+                                    graphicsCardType, device, true);
 
     transmuxer = new Transmuxer(this, true);
 
@@ -101,8 +101,8 @@ namespace FBCapture {
       goto exit;
 
     status = transmuxer->setInput(processor->getOutputPath(kH264Ext),
-      processor->getOutputPath(kAacExt),
-      processor->getOutputPath(kMp4Ext));
+                                  processor->getOutputPath(kAacExt),
+                                  processor->getOutputPath(kMp4Ext));
     if (status != FBCAPTURE_OK)
       goto exit;
 
@@ -118,7 +118,7 @@ namespace FBCapture {
 
   FBCAPTURE_STATUS FBCaptureMain::encodeFrame(const void *texturePtr) {
     if (sessionStatus != FBCAPTURE_SESSION_ACTIVE &&
-      sessionStatus != FBCAPTURE_SESSION_FAIL)
+        sessionStatus != FBCAPTURE_SESSION_FAIL)
       return FBCAPTURE_INVALID_FUNCTION_CALL;
 
     if (terminateSignaled.load())
@@ -133,7 +133,7 @@ namespace FBCapture {
 
   FBCAPTURE_STATUS FBCaptureMain::stopSession() {
     if (sessionStatus != FBCAPTURE_SESSION_ACTIVE &&
-      sessionStatus != FBCAPTURE_SESSION_FAIL)
+        sessionStatus != FBCAPTURE_SESSION_FAIL)
       return FBCAPTURE_INVALID_FUNCTION_CALL;
 
     if (terminateSignaled.load())
