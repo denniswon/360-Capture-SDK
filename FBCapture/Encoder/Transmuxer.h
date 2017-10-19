@@ -14,12 +14,12 @@ namespace FBCapture {
     class Transmuxer : public FBCaptureModule {
     public:
       Transmuxer(FBCaptureDelegate *mainDelegate,
-        bool enableAsyncMode);
+                 bool enableAsyncMode);
       ~Transmuxer();
 
       FBCAPTURE_STATUS setInput(const string* h264FilePath,
-        const string* aacFilePath,
-        const string* mp4FilePath);
+                                const string* aacFilePath,
+                                const string* mp4FilePath);
 
     protected:
       const string* h264FilePath_;

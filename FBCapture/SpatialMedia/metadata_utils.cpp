@@ -580,7 +580,7 @@ namespace FBCapture {
           return empty;
         }
         if (cropped_width_pixels <= 0 || cropped_height_pixels <= 0 ||
-          cropped_width_pixels > full_width_pixels || cropped_height_pixels > full_height_pixels) {
+            cropped_width_pixels > full_width_pixels || cropped_height_pixels > full_height_pixels) {
           cerr << "Error with crop params: cropped area dimensions are ";
           cerr << "invalid: width = " << cropped_width_pixels << " height = " << cropped_height_pixels;
           return empty;
@@ -592,7 +592,7 @@ namespace FBCapture {
         int total_width = cropped_offset_left_pixels + cropped_width_pixels;
         int total_height = cropped_offset_top_pixels + cropped_height_pixels;
         if (cropped_offset_left_pixels  < 0 || cropped_offset_top_pixels < 0 ||
-          total_width > full_width_pixels || total_height > full_height_pixels) {
+            total_width > full_width_pixels || total_height > full_height_pixels) {
           cerr << "Error with crop params: cropped area offsets are ";
           cerr << "invalid: left = " << cropped_offset_left_pixels << " top = " << cropped_offset_top_pixels;
           cerr << " left+cropped width: " << total_width << "top+cropped height: " << total_height;
@@ -602,7 +602,7 @@ namespace FBCapture {
         int iSize = (int)(SPHERICAL_XML_CONTENTS_CROP_FORMAT.length() + 6 * 5); // 6 variables up to 99999
         char *buffer = new char[iSize];
         snprintf(buffer, iSize, SPHERICAL_XML_CONTENTS_CROP_FORMAT.c_str(), cropped_width_pixels, cropped_height_pixels,
-          full_width_pixels, full_height_pixels, cropped_offset_left_pixels, cropped_offset_top_pixels);
+                 full_width_pixels, full_height_pixels, cropped_offset_left_pixels, cropped_offset_top_pixels);
         additional_xml += buffer;
         delete buffer;
       }

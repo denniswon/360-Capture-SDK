@@ -136,7 +136,7 @@ namespace amf {
   public:
     AMFMutex(bool bInitiallyOwned = false, const wchar_t* pName = NULL
 #if defined(_WIN32)
-      , bool bOpenExistent = false
+             , bool bOpenExistent = false
 #endif
     );
     virtual ~AMFMutex();
@@ -418,7 +418,7 @@ namespace amf {
     AMFCriticalSection m_csBlockingRequest;
   public:
     AMFQueueThread(AMFQueue<inT>* pInQueue,
-      AMFQueue<outT>* pOutQueue) : m_pInQueue(pInQueue), m_pOutQueue(pOutQueue), m_mutexInProcess(),
+                   AMFQueue<outT>* pOutQueue) : m_pInQueue(pInQueue), m_pOutQueue(pOutQueue), m_mutexInProcess(),
       m_blockProcessingRequested(false), m_csBlockingRequest() {}
     virtual bool Process(amf_ulong& ulID, inT& inData, outT& outData) = 0;
     virtual void BlockProcessing() {

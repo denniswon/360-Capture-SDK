@@ -625,7 +625,7 @@ NVENCSTATUS CNvHWEncoder::CreateEncoder(EncodeConfig *pEncCfg) {
 
   // set up initial QP value
   if (pEncCfg->rcMode == NV_ENC_PARAMS_RC_VBR || pEncCfg->rcMode == NV_ENC_PARAMS_RC_VBR_MINQP ||
-    pEncCfg->rcMode == NV_ENC_PARAMS_RC_2_PASS_VBR) {
+      pEncCfg->rcMode == NV_ENC_PARAMS_RC_2_PASS_VBR) {
     m_stEncodeConfig.rcParams.enableInitialRCQP = 1;
     m_stEncodeConfig.rcParams.initialRCQP.qpInterP = pEncCfg->qp;
     if (pEncCfg->i_quant_factor != 0.0 && pEncCfg->b_quant_factor != 0.0) {
@@ -861,13 +861,13 @@ NVENCSTATUS CNvHWEncoder::ProcessMVOutput(const MotionEstimationBuffer *pMEBuffe
       unsigned int numMBs = ((m_uMaxWidth + 15) >> 4) * ((m_uMaxHeight + 15) >> 4);
       fprintf(m_fOutput, "Motion Vectors for input frame = %d, reference frame = %d\n", pMEBuffer->inputFrameIndex, pMEBuffer->referenceFrameIndex);
       fprintf(m_fOutput, "block, mb_type, partitionType, "
-        "MV[0].x, MV[0].y, MV[1].x, MV[1].y, MV[2].x, MV[2].y, MV[3].x, MV[3].y, cost\n");
+              "MV[0].x, MV[0].y, MV[1].x, MV[1].y, MV[2].x, MV[2].y, MV[3].x, MV[3].y, cost\n");
       NV_ENC_H264_MV_DATA *outputMV = (NV_ENC_H264_MV_DATA *)lockBitstreamData.bitstreamBufferPtr;
       for (unsigned int i = 0; i < numMBs; i++) {
         fprintf(m_fOutput, "%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", \
-          i, outputMV[i].mbType, outputMV[i].partitionType, \
-          outputMV[i].mv[0].mvx, outputMV[i].mv[0].mvy, outputMV[i].mv[1].mvx, outputMV[i].mv[1].mvy, \
-          outputMV[i].mv[2].mvx, outputMV[i].mv[2].mvy, outputMV[i].mv[3].mvx, outputMV[i].mv[3].mvy, outputMV[i].mbCost);
+                i, outputMV[i].mbType, outputMV[i].partitionType, \
+                outputMV[i].mv[0].mvx, outputMV[i].mv[0].mvy, outputMV[i].mv[1].mvx, outputMV[i].mv[1].mvy, \
+                outputMV[i].mv[2].mvx, outputMV[i].mv[2].mvy, outputMV[i].mv[3].mvx, outputMV[i].mv[3].mvy, outputMV[i].mbCost);
       }
       fprintf(m_fOutput, "\n");
     } else {
@@ -875,15 +875,15 @@ NVENCSTATUS CNvHWEncoder::ProcessMVOutput(const MotionEstimationBuffer *pMEBuffe
       fprintf(m_fOutput, "Motion Vectors for input frame = %d, reference frame = %d\n", pMEBuffer->inputFrameIndex, pMEBuffer->referenceFrameIndex);
       NV_ENC_HEVC_MV_DATA *outputMV = (NV_ENC_HEVC_MV_DATA *)lockBitstreamData.bitstreamBufferPtr;
       fprintf(m_fOutput, "ctb, cuType, cuSize, partitionMode, "
-        "MV[0].x, MV[0].y, MV[1].x, MV[1].y, MV[2].x, MV[2].y, MV[3].x, MV[3].y\n");
+              "MV[0].x, MV[0].y, MV[1].x, MV[1].y, MV[2].x, MV[2].y, MV[3].x, MV[3].y\n");
       bool lastCUInCTB = false;
       for (unsigned int i = 0; i < numCTBs; i++) {
         do {
           lastCUInCTB = outputMV->lastCUInCTB ? true : false;
           fprintf(m_fOutput, "%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n", \
-            i, outputMV->cuType, outputMV->cuSize, outputMV->partitionMode, \
-            outputMV->mv[0].mvx, outputMV->mv[0].mvy, outputMV->mv[1].mvx, outputMV->mv[1].mvy, \
-            outputMV->mv[2].mvx, outputMV->mv[2].mvy, outputMV->mv[3].mvx, outputMV->mv[3].mvy);
+                  i, outputMV->cuType, outputMV->cuSize, outputMV->partitionMode, \
+                  outputMV->mv[0].mvx, outputMV->mv[0].mvy, outputMV->mv[1].mvx, outputMV->mv[1].mvy, \
+                  outputMV->mv[2].mvx, outputMV->mv[2].mvy, outputMV->mv[3].mvx, outputMV->mv[3].mvy);
           outputMV += 1;
         } while (!lastCUInCTB);
       }
@@ -940,8 +940,8 @@ NVENCSTATUS CNvHWEncoder::Initialize(void* device, NV_ENC_DEVICE_TYPE deviceType
 }
 
 NVENCSTATUS CNvHWEncoder::NvEncEncodeFrame(EncodeBuffer *pEncodeBuffer, NvEncPictureCommand *encPicCommand,
-  uint32_t width, uint32_t height, uint64_t timestamp, NV_ENC_PIC_STRUCT ePicStruct,
-  int8_t *qpDeltaMapArray, uint32_t qpDeltaMapArraySize) {
+                                           uint32_t width, uint32_t height, uint64_t timestamp, NV_ENC_PIC_STRUCT ePicStruct,
+                                           int8_t *qpDeltaMapArray, uint32_t qpDeltaMapArraySize) {
   NVENCSTATUS nvStatus = NV_ENC_SUCCESS;
   NV_ENC_PIC_PARAMS encPicParams;
 

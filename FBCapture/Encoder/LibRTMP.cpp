@@ -145,8 +145,8 @@ namespace FBCapture {
           s2 -= 11;
 
           if (((pkt->m_packetType == RTMP_PACKET_TYPE_AUDIO
-            || pkt->m_packetType == RTMP_PACKET_TYPE_VIDEO) &&
-            !pkt->m_nTimeStamp) || pkt->m_packetType == RTMP_PACKET_TYPE_INFO) {
+                || pkt->m_packetType == RTMP_PACKET_TYPE_VIDEO) &&
+               !pkt->m_nTimeStamp) || pkt->m_packetType == RTMP_PACKET_TYPE_INFO) {
             pkt->m_headerType = RTMP_PACKET_SIZE_LARGE;
           } else
             pkt->m_headerType = RTMP_PACKET_SIZE_MEDIUM;

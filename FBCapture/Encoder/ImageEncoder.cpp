@@ -14,9 +14,9 @@ namespace FBCapture {
   namespace Video {
 
     ImageEncoder::ImageEncoder(FBCaptureDelegate *mainDelegate,
-      GraphicsCardType graphicsCardType,
-      ID3D11Device* device,
-      bool enableAsyncMode)
+                               GraphicsCardType graphicsCardType,
+                               ID3D11Device* device,
+                               bool enableAsyncMode)
       : FBCaptureModule(mainDelegate),
       device_(device),
       graphicsCardType_(graphicsCardType),

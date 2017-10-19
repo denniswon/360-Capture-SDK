@@ -14,10 +14,10 @@ namespace FBCapture {
   namespace Audio {
 
     AudioEncoder::AudioEncoder(FBCaptureEncoderDelegate *mainDelegate,
-      EncodePacketProcessorDelegate *processorDelegate,
-      bool mute,
-      bool mixMic,
-      bool useRiftAudioSources) :
+                               EncodePacketProcessorDelegate *processorDelegate,
+                               bool mute,
+                               bool mixMic,
+                               bool useRiftAudioSources) :
       FBCaptureEncoderModule(mainDelegate, processorDelegate),
       encStatus_(EncStatus::ENC_NOT_ACCEPTING),
       mute_(mute),

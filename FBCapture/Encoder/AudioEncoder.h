@@ -12,10 +12,10 @@ namespace FBCapture {
     class AudioEncoder : public FBCaptureEncoderModule {
     public:
       AudioEncoder(FBCaptureEncoderDelegate *mainDelegate,
-        EncodePacketProcessorDelegate *processorDelegate,
-        bool mute,
-        bool mixMic,
-        bool useRiftAudioSources);
+                   EncodePacketProcessorDelegate *processorDelegate,
+                   bool mute,
+                   bool mixMic,
+                   bool useRiftAudioSources);
       ~AudioEncoder();
 
       void setOutputPath(const string* dstFile);

@@ -123,7 +123,7 @@ AMF_RESULT AMF_CDECL_CALL amf::AMFTraceFlush() {
 }
 //------------------------------------------------------------------------------------------------
 void AMF_CDECL_CALL amf::AMFTraceW(const wchar_t* src_path, amf_int32 line, amf_int32 level, const wchar_t* scope,
-  amf_int32 countArgs, const wchar_t* format, ...) // if countArgs <= 0 -> no args, formatting could be optimized then
+                                   amf_int32 countArgs, const wchar_t* format, ...) // if countArgs <= 0 -> no args, formatting could be optimized then
 {
   if (countArgs <= 0) {
     GetTrace()->Trace(src_path, line, level, scope, format, NULL);

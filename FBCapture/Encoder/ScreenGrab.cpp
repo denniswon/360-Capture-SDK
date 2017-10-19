@@ -684,7 +684,7 @@ namespace {
 
     IWICImagingFactory* factory = nullptr;
     InitOnceExecuteOnce(&s_initOnce,
-      [](PINIT_ONCE, PVOID, LPVOID *factory) -> BOOL {
+                        [](PINIT_ONCE, PVOID, LPVOID *factory) -> BOOL {
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8) || defined(_WIN7_PLATFORM_UPDATE)
       HRESULT hr = CoCreateInstance(
         CLSID_WICImagingFactory2,
@@ -719,14 +719,14 @@ namespace {
     }, nullptr, reinterpret_cast<LPVOID*>(&factory));
 
     return factory;
-    }
-  } // anonymous namespace
+  }
+} // anonymous namespace
 
 
-    //--------------------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------
 HRESULT Directx::SaveDDSTextureToFile(_In_ ID3D11DeviceContext* pContext,
-  _In_ ID3D11Resource* pSource,
-  _In_z_ const wchar_t* fileName) {
+                                      _In_ ID3D11Resource* pSource,
+                                      _In_z_ const wchar_t* fileName) {
   if (!fileName)
     return E_INVALIDARG;
 
@@ -745,7 +745,7 @@ HRESULT Directx::SaveDDSTextureToFile(_In_ ID3D11DeviceContext* pContext,
   if (!hFile) {
     DEBUG_ERROR("Failed to create file from CreateFile2");
     return HRESULT_FROM_WIN32(GetLastError());
-}
+  }
 
   auto_delete_file delonfail(hFile.get());
 
@@ -886,11 +886,11 @@ HRESULT Directx::SaveDDSTextureToFile(_In_ ID3D11DeviceContext* pContext,
 
 //--------------------------------------------------------------------------------------
 HRESULT Directx::SaveWICTextureToFile(_In_ ID3D11DeviceContext* pContext,
-  _In_ ID3D11Resource* pSource,
-  _In_ REFGUID guidContainerFormat,
-  _In_z_ const wchar_t* fileName,
-  _In_opt_ const GUID* targetFormat,
-  _In_opt_ std::function<void(IPropertyBag2*)> setCustomProps) {
+                                      _In_ ID3D11Resource* pSource,
+                                      _In_ REFGUID guidContainerFormat,
+                                      _In_z_ const wchar_t* fileName,
+                                      _In_opt_ const GUID* targetFormat,
+                                      _In_opt_ std::function<void(IPropertyBag2*)> setCustomProps) {
   if (!fileName)
     return E_INVALIDARG;
 
@@ -1120,8 +1120,8 @@ HRESULT Directx::SaveWICTextureToFile(_In_ ID3D11DeviceContext* pContext,
     // Conversion required to write
     ComPtr<IWICBitmap> source;
     hr = pWIC->CreateBitmapFromMemory(desc.Width, desc.Height, pfGuid,
-      mapped.RowPitch, mapped.RowPitch * desc.Height,
-      reinterpret_cast<uint8_t*>(mapped.pData), source.GetAddressOf());
+                                      mapped.RowPitch, mapped.RowPitch * desc.Height,
+                                      reinterpret_cast<uint8_t*>(mapped.pData), source.GetAddressOf());
     if (FAILED(hr)) {
       DEBUG_LOG("Failed to create bitmap from memory");
       pContext->Unmap(pStaging.Get(), 0);

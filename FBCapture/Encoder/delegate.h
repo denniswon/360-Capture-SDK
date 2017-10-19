@@ -370,15 +370,15 @@ __except (EXCEPTION_EXECUTE_HANDLER) { \
     }
     bool operator!= (const delegate& other) const {
       return !((*this) == other);
-  }
+    }
 
   private:
     T& callee_;
     func_type func_;
-};
-/**
- * function to deduce template parameters from call-context
- */
+  };
+  /**
+   * function to deduce template parameters from call-context
+   */
   template <typename F, typename T>
   delegate<F> make_delegate(F func, T& obj) {
     return delegate<F>(func, obj);

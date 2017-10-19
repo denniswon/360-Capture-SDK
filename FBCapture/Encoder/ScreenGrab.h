@@ -31,13 +31,13 @@
 
 namespace Directx {
   HRESULT SaveDDSTextureToFile(_In_ ID3D11DeviceContext* pContext,
-    _In_ ID3D11Resource* pSource,
-    _In_z_ const wchar_t* fileName);
+                               _In_ ID3D11Resource* pSource,
+                               _In_z_ const wchar_t* fileName);
 
   HRESULT SaveWICTextureToFile(_In_ ID3D11DeviceContext* pContext,
-    _In_ ID3D11Resource* pSource,
-    _In_ REFGUID guidContainerFormat,
-    _In_z_ const wchar_t* fileName,
-    _In_opt_ const GUID* targetFormat = nullptr,
-    _In_opt_ std::function<void(IPropertyBag2*)> setCustomProps = nullptr);
+                               _In_ ID3D11Resource* pSource,
+                               _In_ REFGUID guidContainerFormat,
+                               _In_z_ const wchar_t* fileName,
+                               _In_opt_ const GUID* targetFormat = nullptr,
+                               _In_opt_ std::function<void(IPropertyBag2*)> setCustomProps = nullptr);
 }
