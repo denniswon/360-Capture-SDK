@@ -117,7 +117,7 @@ namespace FBCapture {
 
         void Update() {
             if (!sessionActive) {
-                Debug.LogFormat("[LOG] fps: {0}", 1.0f / Time.deltaTime);
+                // Debug.LogFormat("[LOG] fps: {0}", 1.0f / Time.deltaTime);
                 return;
             }
 

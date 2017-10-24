@@ -48,9 +48,10 @@ namespace FBCapture {
       }
 
       texturePtr_ = texturePtr;
-      if (dstUrl)
+      if (dstUrl) {
+        jpgFilePath_ = new wchar_t[MAX_FILENAME_LENGTH];
         wcscpy(jpgFilePath_, dstUrl);
-      else
+      } else
         ConvertToWide((char*)GetDefaultOutputPath(kJpgExt).c_str(), &jpgFilePath_);
       flipTexture_ = flipTexture;
 

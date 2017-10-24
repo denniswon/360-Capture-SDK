@@ -15,7 +15,7 @@ namespace FBCapture {
   ID3D11Device* FBCaptureMain::device = NULL;
   GraphicsCardType FBCaptureMain::graphicsCardType = GraphicsCardType::UNKNOWN;
 
-  FBCAPTURE_STATUS Create(FBCaptureConfig* config, FBCAPTURE_HANDLE* handle) {
+  FBCAPTURE_STATUS APIENTRY Create(FBCaptureConfig* config, FBCAPTURE_HANDLE* handle) {
     FBCaptureMain* fbCapture = new FBCaptureMain();
     FBCAPTURE_STATUS status = fbCapture->initialize(config);
     if (status != FBCAPTURE_OK) {
@@ -26,43 +26,43 @@ namespace FBCapture {
     return status;
   }
 
-  FBCAPTURE_STATUS StartSession(FBCAPTURE_HANDLE handle, const wchar_t* dstUrl) {
+  FBCAPTURE_STATUS APIENTRY StartSession(FBCAPTURE_HANDLE handle, const wchar_t* dstUrl) {
     EXPECTED_STATUS(handle, FBCAPTURE_SESSION_INITIALIZED);
     FBCAPTURE_MAIN_DELEGATE(handle, &FBCaptureMain::startSession, dstUrl);
     return retStatus;
   }
 
-  FBCAPTURE_STATUS EncodeFrame(FBCAPTURE_HANDLE handle, const void* texturePtr) {
+  FBCAPTURE_STATUS APIENTRY EncodeFrame(FBCAPTURE_HANDLE handle, const void* texturePtr) {
     EXPECTED_STATUS(handle, FBCAPTURE_SESSION_ACTIVE);
     FBCAPTURE_MAIN_DELEGATE(handle, &FBCaptureMain::encodeFrame, texturePtr);
     return retStatus;
   }
 
-  FBCAPTURE_STATUS StopSession(FBCAPTURE_HANDLE handle) {
+  FBCAPTURE_STATUS APIENTRY StopSession(FBCAPTURE_HANDLE handle) {
     EXPECTED_STATUS(handle, FBCAPTURE_SESSION_ACTIVE);
     FBCAPTURE_MAIN_DELEGATE(handle, &FBCaptureMain::stopSession);
     return retStatus;
   }
 
-  FBCAPTURE_STATUS SaveScreenShot(FBCAPTURE_HANDLE handle, const void *texturePtr, const wchar_t* dstUrl, bool flipTexture) {
+  FBCAPTURE_STATUS APIENTRY SaveScreenShot(FBCAPTURE_HANDLE handle, const void *texturePtr, const wchar_t* dstUrl, bool flipTexture) {
     EXPECTED_STATUS(handle, FBCAPTURE_SESSION_INITIALIZED);
     FBCAPTURE_MAIN_DELEGATE(handle, &FBCaptureMain::saveScreenShot, texturePtr, dstUrl, flipTexture);
     return retStatus;
   }
 
-  FBCAPTURE_STATUS Release(FBCAPTURE_HANDLE handle) {
+  FBCAPTURE_STATUS APIENTRY Release(FBCAPTURE_HANDLE handle) {
     EXPECTED_STATUS(handle, FBCAPTURE_SESSION_INITIALIZED);
     delete reinterpret_cast<FBCaptureMain*>(handle);
     return FBCAPTURE_OK;
   }
 
-  FBCAPTURE_STATUS GetSessionStatus(FBCAPTURE_HANDLE handle) {
+  FBCAPTURE_STATUS APIENTRY GetSessionStatus(FBCAPTURE_HANDLE handle) {
     FBCaptureMain* fbCapture = reinterpret_cast<FBCaptureMain*>(handle);
     if (!fbCapture) return FBCAPTURE_INVALID_FUNCTION_CALL;
     return fbCapture->getSessionStatus();
   }
 
-  FBCAPTURE_STATUS Mute(FBCAPTURE_HANDLE handle, bool mute) {
+  FBCAPTURE_STATUS APIENTRY Mute(FBCAPTURE_HANDLE handle, bool mute) {
     FBCaptureMain* fbCapture = reinterpret_cast<FBCaptureMain*>(handle);
     if (!fbCapture ||
         !(fbCapture->getSessionStatus() == FBCAPTURE_SESSION_INITIALIZED ||
@@ -72,7 +72,7 @@ namespace FBCapture {
     return fbCapture->mute(mute);
   }
 
-  void UnitySetGraphicsDevice(void* device, int deviceType, int eventType) {
+  void APIENTRY UnitySetGraphicsDevice(void* device, int deviceType, int eventType) {
     int nvidiaVenderID = 4318;  // NVIDIA Vendor ID: 0x10DE
     int amdVenderID1 = 4098;    // AMD Vendor ID: 0x1002
     int amdVenderID2 = 4130;    // AMD Vendor ID: 0x1022
