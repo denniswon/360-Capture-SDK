@@ -44,8 +44,7 @@ namespace FBCapture {
       outputBufferData(NULL),
       outputBufferLength(0),
       outputSamplePts(0),
-      outputSampleDuration(0),
-      outputPath(NULL) {}
+      outputSampleDuration(0) {}
 
     MFAudioEncoder::~MFAudioEncoder() {
       finalize();
@@ -203,7 +202,7 @@ namespace FBCapture {
       return status;
     }
 
-    FBCAPTURE_STATUS MFAudioEncoder::initialize(WAVEFORMATEX *wavPWFX) {
+    FBCAPTURE_STATUS MFAudioEncoder::initialize(WAVEFORMATEX *wavPWFX, const wchar_t* dstFile) {
       CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
       MFStartup(MF_VERSION);
 
@@ -233,8 +232,8 @@ namespace FBCapture {
       CHECK_HR_STATUS(transform->ProcessMessage(MFT_MESSAGE_NOTIFY_BEGIN_STREAMING, NULL), FBCAPTURE_AUDIO_ENCODER_INIT_FAILED);
       CHECK_HR_STATUS(transform->ProcessMessage(MFT_MESSAGE_NOTIFY_START_OF_STREAM, NULL), FBCAPTURE_AUDIO_ENCODER_INIT_FAILED);
 
-      if (outputPath)
-        CHECK_HR_STATUS(addSinkWriter(outputPath), FBCAPTURE_AUDIO_ENCODER_INIT_FAILED);
+      if (dstFile)
+        CHECK_HR_STATUS(addSinkWriter(dstFile), FBCAPTURE_AUDIO_ENCODER_INIT_FAILED);
 
       outputBufferData = (BYTE*)malloc(sizeof(float) * AudioBuffer::kMIX_BUFFER_LENGTH);
       outputBufferLength = 0;
@@ -242,10 +241,6 @@ namespace FBCapture {
       outputSampleDuration = 0;
 
       return status;
-    }
-
-    void MFAudioEncoder::setOutputPath(const wchar_t* dstFile) {
-      outputPath = dstFile;
     }
 
     FBCAPTURE_STATUS MFAudioEncoder::getSequenceParams(uint32_t* profileLevel, uint32_t* sampleRate, uint32_t* numChannels) {

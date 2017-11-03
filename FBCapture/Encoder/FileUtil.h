@@ -19,6 +19,20 @@ Copyright	:
 
 #define MAX_FILENAME_LENGTH 256
 
+#define OPEN_FILE(file, path) \
+errno_t err = fopen_s(&file, path.c_str(), "wb"); \
+if (err) { \
+  DEBUG_ERROR_VAR("Failed opening file", path); \
+  return FBCAPTURE_OUTPUT_FILE_OPEN_FAILED; \
+}
+#define CLOSE_FILE(file) if (file) { fclose(file); file = NULL; }
+#define REMOVE_FILE(filePathPtr) \
+if (filePathPtr) { \
+  remove((*filePathPtr).c_str());\
+  delete filePathPtr; \
+  filePathPtr = NULL; \
+}
+
 using namespace std;
 
 namespace FBCapture {

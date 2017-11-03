@@ -53,7 +53,7 @@ namespace FBCapture {
       virtual ~MFAudioEncoder();
 
       /* initializes the AAC encoder that can either encode wav input file or wav input stream packets as aac file/packet output */
-      FBCAPTURE_STATUS initialize(WAVEFORMATEX *wavPWFX);
+      FBCAPTURE_STATUS initialize(WAVEFORMATEX *wavPWFX, const wchar_t* dstFile);
 
       /* encode input wav audio file into aac encoded output file */
       FBCAPTURE_STATUS encodeFile(const wstring srcFile, const wstring dstFile);
@@ -74,9 +74,6 @@ namespace FBCapture {
       FBCAPTURE_STATUS getSequenceParams(uint32_t* profileLevel, uint32_t* sampleRate, uint32_t* numChannels);
 
       FBCAPTURE_STATUS getEncodePacket(AudioEncodePacket** packet);
-
-      /* optional. If called, aac packets are saved to dstFile automatically */
-      void setOutputPath(const wchar_t* dstFile);
 
     private:
 
@@ -143,8 +140,6 @@ namespace FBCapture {
       DWORD outputBufferLength;
       LONGLONG outputSamplePts;
       LONGLONG outputSampleDuration;
-
-      const wchar_t* outputPath;
 
     public:
       static const uint32_t profileLevel;

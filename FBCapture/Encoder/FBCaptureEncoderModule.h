@@ -58,9 +58,13 @@ namespace FBCapture {
         return status;
       }
 
-      virtual void finish() override {
+      virtual FBCAPTURE_STATUS finish() override {
+        FBCAPTURE_STATUS status = finalize();
+        if (status != FBCAPTURE_OK)
+          main->onFailure(status);
         dynamic_cast<FBCaptureEncoderDelegate*>(main)->onFinish(type());
-        done();
+        isRunning_ = false;
+        return status;
       }
     };
   }

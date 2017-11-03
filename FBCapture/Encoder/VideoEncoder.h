@@ -41,7 +41,7 @@ namespace FBCapture {
       FBCAPTURE_STATUS finalize();
 
       const PacketType type() {
-        return PacketType::AUDIO;
+        return PacketType::VIDEO;
       }
 
     };

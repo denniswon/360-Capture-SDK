@@ -10,19 +10,6 @@ Copyright	:
 #include "Common.h"
 #include "Log.h"
 
-#define OPEN_FILE(file, path) \
-errno_t err = fopen_s(&file, path.c_str(), "wb"); \
-if (err) { \
-  DEBUG_ERROR_VAR("Failed opening file", path); \
-  return FBCAPTURE_OUTPUT_FILE_OPEN_FAILED; \
-}
-
-#define CLOSE_FILE(file, pathPtr) \
-if (file) fclose(file); \
-if (pathPtr) delete pathPtr; \
-file = NULL; \
-pathPtr = NULL;
-
 namespace FBCapture {
   namespace Streaming {
 
@@ -31,37 +18,15 @@ namespace FBCapture {
       aacSeqHdrSet(false),
       flvPacketizer(NULL),
       rtmp(NULL),
+      h264OutputPath(NULL),
       h264File(NULL),
+      aacOutputPath(NULL),
       aacFile(NULL),
+      flvOutputPath(NULL),
       flvFile(NULL) {}
 
     EncodePacketProcessor::~EncodePacketProcessor() {
       release();
-
-      if (flvPacketizer) {
-        delete flvPacketizer;
-        flvPacketizer = NULL;
-      }
-
-      if (rtmp) {
-        delete rtmp;
-        rtmp = NULL;
-      }
-
-      if (h264File) {
-        delete h264File;
-        h264File = NULL;
-      }
-
-      if (aacFile) {
-        delete aacFile;
-        aacFile = NULL;
-      }
-
-      if (flvFile) {
-        delete flvFile;
-        flvFile = NULL;
-      }
     }
 
     FBCAPTURE_STATUS EncodePacketProcessor::initialize(DestinationURL dstUrl) {
@@ -184,20 +149,19 @@ namespace FBCapture {
     FBCAPTURE_STATUS EncodePacketProcessor::openOutputFiles(DestinationURL url) {
       ConvertToByte((wchar_t*)url, &destinationUrl);
 
-      string mp4OutputPath;
       if (IsStreamingUrl(url)) {
-        mp4OutputPath = GetDefaultOutputPath(kMp4Ext).c_str();
+        mp4OutputPath = new string(GetDefaultOutputPath(kMp4Ext).c_str());
         rtmp = new LibRTMP();
         flvPacketizer = new FlvPacketizer();
-        flvOutputPath = new string(ChangeFileExt(mp4OutputPath, kMp4Ext, kFlvExt));
+        flvOutputPath = new string(ChangeFileExt(*mp4OutputPath, kMp4Ext, kFlvExt));
         OPEN_FILE(flvFile, (*flvOutputPath));
       } else
-        mp4OutputPath = destinationUrl;
+        mp4OutputPath = new string(destinationUrl);
 
-      h264OutputPath = new string(ChangeFileExt(mp4OutputPath, kMp4Ext, kH264Ext));
+      h264OutputPath = new string(ChangeFileExt(*mp4OutputPath, kMp4Ext, kH264Ext));
       OPEN_FILE(h264File, (*h264OutputPath));
 
-      aacOutputPath = new string(ChangeFileExt(mp4OutputPath, kMp4Ext, kAacExt));
+      aacOutputPath = new string(ChangeFileExt(*mp4OutputPath, kMp4Ext, kAacExt));
       // TODO: archive aac packets here instead from MFAudioEncoder
       // OPEN_FILE(aacFile, (*aacOutputPath));
 
@@ -211,33 +175,45 @@ namespace FBCapture {
         return aacOutputPath;
       else if (ext.compare(kFlvExt) == 0)
         return flvOutputPath;
-      return NULL;
+      else if (ext.compare(kMp4Ext) == 0)
+        return mp4OutputPath;
+      else
+        return NULL;
     }
 
     void EncodePacketProcessor::finalize() {
-      CLOSE_FILE(h264File, h264OutputPath);
-      CLOSE_FILE(aacFile, aacOutputPath);
-      CLOSE_FILE(flvFile, flvOutputPath);
-
-      if (rtmp) {
+      CLOSE_FILE(h264File);
+      CLOSE_FILE(aacFile);
+      CLOSE_FILE(flvFile);
+      if (rtmp)
         rtmp->close();
-        rtmp = NULL;
-      }
-
-      if (destinationUrl)
-        delete destinationUrl;
-      destinationUrl = NULL;
-
-      avcSeqHdrSet = false;
-      aacSeqHdrSet = false;
     }
 
     void EncodePacketProcessor::release() {
       finalize();
 
-      remove((*h264OutputPath).c_str());
-      remove((*aacOutputPath).c_str());
-      remove((*flvOutputPath).c_str());
+      REMOVE_FILE(h264OutputPath);
+      REMOVE_FILE(aacOutputPath);
+      REMOVE_FILE(flvOutputPath);
+
+      if (flvPacketizer)
+        delete flvPacketizer;
+      flvPacketizer = NULL;
+
+      if (rtmp)
+        delete rtmp;
+      rtmp = NULL;
+
+      if (destinationUrl)
+        delete destinationUrl;
+      destinationUrl = NULL;
+      if (mp4OutputPath)
+        delete mp4OutputPath;
+      mp4OutputPath = NULL;
+
+      avcSeqHdrSet = false;
+      aacSeqHdrSet = false;
     }
+
   }
 }

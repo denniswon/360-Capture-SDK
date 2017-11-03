@@ -39,20 +39,7 @@ namespace FBCapture {
     if (transmuxer)
       delete transmuxer;
 
-    activeSessionID.reset();
-    completedSessionID.reset();
-
-    terminateSignaled = false;
-    terminateStatus = FBCAPTURE_OK;
-
-    videoFinished = false;
-    audioFinished = false;
-
-    sessionStatus = FBCAPTURE_OK;
-
-    frameCounter.reset();
-
-    RELEASE_LOG();
+    release();
   }
 
   FBCAPTURE_STATUS FBCaptureMain::initialize(FBCaptureConfig* config) {
@@ -95,7 +82,8 @@ namespace FBCapture {
     if (status != FBCAPTURE_OK)
       goto exit;
 
-    audioEncoder->setOutputPath(processor->getOutputPath(kAacExt));
+    const string* path = processor->getOutputPath(kAacExt);
+    audioEncoder->setOutputPath(path);
     status = audioEncoder->start();
     if (status != FBCAPTURE_OK)
       goto exit;
@@ -187,11 +175,33 @@ namespace FBCapture {
     return sessionStatus;
   }
 
+  FBCAPTURE_STATUS FBCaptureMain::release() {
+    FBCAPTURE_STATUS status = FBCAPTURE_OK;
+
+    activeSessionID.reset();
+    completedSessionID.reset();
+
+    terminateSignaled = false;
+    terminateStatus = FBCAPTURE_OK;
+
+    videoFinished = false;
+    audioFinished = false;
+
+    sessionStatus = FBCAPTURE_OK;
+
+    frameCounter.reset();
+
+    RELEASE_LOG();
+
+    return status;
+  }
+
   void FBCaptureMain::onFailure(FBCAPTURE_STATUS status) {
     terminateStatus = status;
     terminateSignaled = true;
     sessionStatus = FBCAPTURE_SESSION_FAIL;
-    stopSession();
+    audioEncoder->stop();
+    videoEncoder->stop();
     processor->release();
   }
 

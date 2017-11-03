@@ -94,10 +94,7 @@ namespace FBCapture {
     }
 
     FBCAPTURE_STATUS Transmuxer::finalize() {
-      // Remove input h264, aac files after muxing is done
-      remove((*h264FilePath_).c_str());
       h264FilePath_ = NULL;
-      remove((*aacFilePath_).c_str());
       aacFilePath_ = NULL;
 
       // if metadata injecteion creates a new file, remove the input mp4 file

@@ -57,7 +57,7 @@ namespace FBCapture {
       }
 
       audioEncoder = new MFAudioEncoder();
-      status = audioEncoder->initialize(pwfx);
+      status = audioEncoder->initialize(pwfx, outputPath);
       if (status != FBCAPTURE_OK)
         DEBUG_ERROR_VAR("Failed initializing AudioCapture", to_string(status));
       return status;
@@ -69,7 +69,6 @@ namespace FBCapture {
 
     void AudioEncoder::setOutputPath(const string* dstFile) {
       ConvertToWide((char*)(*dstFile).c_str(), (wchar_t**)&outputPath);
-      audioEncoder->setOutputPath(outputPath);
     }
 
     FBCAPTURE_STATUS AudioEncoder::getPacket(EncodePacket** packet) {

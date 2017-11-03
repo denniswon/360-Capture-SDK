@@ -39,6 +39,7 @@ namespace FBCapture {
     FBCAPTURE_STATUS saveScreenShot(const void *texturePtr, DestinationURL dstUrl, bool flipTexture);
     FBCAPTURE_STATUS mute(bool mute);
     FBCAPTURE_STATUS getSessionStatus();
+    FBCAPTURE_STATUS release();
 
     /* FBCaptureDelegate */
     void onFinish();

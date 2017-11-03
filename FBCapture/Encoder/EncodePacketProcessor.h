@@ -41,6 +41,7 @@ namespace FBCapture {
       char* destinationUrl;
 
       string* flvOutputPath;               // flv muxing output path
+      string* mp4OutputPath;               // mp4 muxing output path
       string* h264OutputPath;              // input to transmuxer for video stream
       string* aacOutputPath;               // input to transmuxer for audio stream
 

@@ -58,16 +58,14 @@ namespace FBCapture {
 
     virtual FBCAPTURE_STATUS stop() {
       FBCAPTURE_STATUS status = FBCAPTURE_OK;
+      if (stopRequested_)
+        return status;
 
-      if (!enableAsyncMode_) {
-        status = finalize();
-        if (status != FBCAPTURE_OK)
-          main->onFailure(status);
-        finish();
-      } else
-        stopRequested_ = true;
+      stopRequested_ = true;
+      if (enableAsyncMode_)
+        return status;
 
-      return status;
+      return finish();
     }
 
     virtual bool join() {
@@ -95,13 +93,13 @@ namespace FBCapture {
       return true;
     }
 
-    virtual void finish() {
+    virtual FBCAPTURE_STATUS finish() {
+      FBCAPTURE_STATUS status = finalize();
+      if (status != FBCAPTURE_OK)
+        main->onFailure(status);
       main->onFinish();
-      done();
-    }
-
-    virtual void  done() {
       isRunning_ = false;
+      return status;
     }
 
     virtual FBCAPTURE_STATUS run() {
@@ -115,17 +113,11 @@ namespace FBCapture {
         status = process();
         if (status != FBCAPTURE_OK) {
           main->onFailure(status);
-          break;
+          return status;
         }
         loop = continueLoop();
       }
-
-      status = finalize();
-      if (status != FBCAPTURE_OK)
-        main->onFailure(status);
-
-      finish();
-      return status;
+      return finish();
     }
   };
 }
