@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Wmcodecdsp.h>
 #include <comdef.h>
 #include <codecvt>
 
@@ -18,26 +17,26 @@ namespace FBCapture {
 
   inline void ConvertToByte(wchar_t* in, char** out) {
     if (!in) return;
-    size_t size = wcslen(in) * 2 + 2;
+    const auto size = wcslen(in) * 2 + 2;
     *out = new char[size];
-    size_t c_size;
-    wcstombs_s(&c_size, *out, size, in, size);
+    size_t cSize;
+    wcstombs_s(&cSize, *out, size, in, size);
   }
 
-  inline string ConvertToByte(wstring path) {
+  inline string ConvertToByte(const wstring path) {
     wstring_convert<codecvt_utf8<wchar_t>> stringTypeConversion;
     return stringTypeConversion.to_bytes(path).c_str();
   }
 
   inline void ConvertToWide(char* in, wchar_t** out) {
     if (!in) return;
-    size_t size = strlen(in) + 1;
+    const auto size = strlen(in) + 1;
     *out = new wchar_t[size];
     size_t c_size;
     mbstowcs_s(&c_size, *out, size, in, size);
   }
 
-  inline wstring ConvertToWide(string path) {
+  inline wstring ConvertToWide(const string path) {
     wstring_convert<codecvt_utf8<wchar_t>> stringTypeConversion;
     return stringTypeConversion.from_bytes(path).c_str();
   }

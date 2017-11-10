@@ -13,14 +13,15 @@ namespace FBCapture {
 
     VideoEncoder::VideoEncoder(FBCaptureEncoderDelegate *mainDelegate,
                                EncodePacketProcessorDelegate *processorDelegate,
-                               GraphicsCardType graphicsCardType,
+                               const GRAPHICS_CARD_TYPE graphicsCardType,
                                ID3D11Device* device,
-                               uint32_t bitrate,
-                               uint32_t fps,
-                               uint32_t gop,
-                               bool flipTexture,
-                               bool enableAsyncMode) :
+                               const uint32_t bitrate,
+                               const uint32_t fps,
+                               const uint32_t gop,
+                               const bool flipTexture,
+                               const bool enableAsyncMode) :
       FBCaptureEncoderModule(mainDelegate, processorDelegate),
+      gpuEncoder_{NULL},
       graphicsCardType_(graphicsCardType),
       device_(device),
       bitrate_(bitrate),
@@ -43,19 +44,19 @@ namespace FBCapture {
         return FBCAPTURE_GPU_ENCODER_UNSUPPORTED_DRIVER;
       }
 
-      FBCAPTURE_STATUS status = gpuEncoder_->initialize(bitrate_, fps_, gop_, flipTexture_, enableAsyncMode_);
+      auto status = gpuEncoder_->initialize(bitrate_, fps_, gop_, flipTexture_, enableAsyncMode_);
       if (status != FBCAPTURE_OK)
         DEBUG_ERROR_VAR("Failed initializing hardware encoder", to_string(status));
       return status;
     }
 
-    FBCAPTURE_STATUS VideoEncoder::encode(const void *texturePtr) {
+    FBCAPTURE_STATUS VideoEncoder::encode(void *texturePtr) {
       if (!texturePtr) {
         DEBUG_ERROR("It's invalid texture pointer: null");
         return FBCAPTURE_GPU_ENCODER_NULL_TEXTURE_POINTER;
       }
 
-      FBCAPTURE_STATUS status = gpuEncoder_->encode(texturePtr);
+      const auto status = gpuEncoder_->encode(texturePtr);
       if (status != FBCAPTURE_OK || enableAsyncMode_)
         return status;
 
@@ -65,7 +66,7 @@ namespace FBCapture {
     FBCAPTURE_STATUS VideoEncoder::getPacket(EncodePacket** packet) {
       VideoEncodePacket* videoPacket;
 
-      FBCAPTURE_STATUS status = gpuEncoder_->getEncodePacket(&videoPacket);
+      auto status = gpuEncoder_->getEncodePacket(&videoPacket);
       if (status != FBCAPTURE_OK) {
         DEBUG_ERROR_VAR("Failed creating VideoEncodePacket from Video Encoder", to_string(status));
         return status;
@@ -77,7 +78,7 @@ namespace FBCapture {
 
     FBCAPTURE_STATUS VideoEncoder::finalize() {
       // Finalize the hardware encoding session after flushing
-      FBCAPTURE_STATUS status = gpuEncoder_->finalize();
+      auto status = gpuEncoder_->finalize();
       if (status != FBCAPTURE_OK)
         DEBUG_ERROR_VAR("Failed flushing the hardware encoder", to_string(status));
       return status;

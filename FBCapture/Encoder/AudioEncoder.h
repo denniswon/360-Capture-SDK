@@ -22,8 +22,8 @@ namespace FBCapture {
       void mute(bool mute);
 
     protected:
-      AudioCapture* audioCapture;
-      MFAudioEncoder* audioEncoder;
+      AudioCapture* audioCapture_;
+      MFAudioEncoder* audioEncoder_;
 
       EncStatus encStatus_;
 
@@ -33,16 +33,16 @@ namespace FBCapture {
       bool mixMic_;                             // captures both input audio source in addition to the default output audio source
       bool useRiftAudioSources_;                // uses Rift audio input/output sources instead of the default audio devices
 
-      const wchar_t* outputPath;
+      const wchar_t* outputPath_;
 
       /* FBCaptureEncoderModule */
 
-      FBCAPTURE_STATUS init();
-      FBCAPTURE_STATUS getPacket(EncodePacket** packet);
-      FBCAPTURE_STATUS finalize();
+      FBCAPTURE_STATUS init() override;
+      FBCAPTURE_STATUS getPacket(EncodePacket** packet) override;
+      FBCAPTURE_STATUS finalize() override;
 
-      const PacketType type() {
-        return PacketType::AUDIO;
+      PACKET_TYPE type() override {
+        return PACKET_TYPE::AUDIO;
       }
     };
   }

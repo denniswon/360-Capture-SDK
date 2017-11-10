@@ -10,7 +10,7 @@ namespace FBCapture {
     atomic<int> count;
 
     FrameCounter() : count(0) {}
-    FrameCounter(int cnt) : count(cnt) {}
+    explicit FrameCounter(const int cnt) : count(cnt) {}
 
     void increment() {
       ++count;
@@ -20,7 +20,7 @@ namespace FBCapture {
       count = 0;
     }
 
-    int get() {
+    int get() const {
       return count.load();
     }
   };

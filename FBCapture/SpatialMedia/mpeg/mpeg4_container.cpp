@@ -3,7 +3,7 @@
  * Copyright 2016 Varol Okan. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file_ except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -40,13 +40,13 @@ namespace FBCapture {
 
       Mpeg4Container *Mpeg4Container::load(std::fstream &fsIn) //, uint32_t /* iPos */, uint32_t /* iEnd */ )
       {
-        // Load the mpeg4 file structure of a file.
+        // Load the mpeg4 file_ structure of a file_.
         //  fsIn.seekg ( 0, 2 );
         int32_t iSize = (int32_t)fsIn.tellg();
         std::vector<Box *> list = load_multiple(fsIn, 0, iSize);
 
         if (list.empty()) {
-          std::cerr << "Error, failed to load .mp4 file." << std::endl;
+          std::cerr << "Error, failed to load .mp4 file_." << std::endl;
           return NULL;
         }
         Mpeg4Container *pNewBox = new Mpeg4Container();
@@ -66,12 +66,12 @@ namespace FBCapture {
             pNewBox->m_pFTYPBox = pBox;
         }
         if (!pNewBox->m_pMoovBox) {
-          std::cerr << "Error, file does not contain moov box." << std::endl;
+          std::cerr << "Error, file_ does not contain moov box." << std::endl;
           delete pNewBox;
           return NULL;
         }
         if (!pNewBox->m_pFirstMDatBox) {
-          std::cerr << "Error, file does not contain mdat box." << std::endl;
+          std::cerr << "Error, file_ does not contain mdat box." << std::endl;
           delete pNewBox;
           return NULL;
         }
@@ -88,12 +88,12 @@ namespace FBCapture {
 
       void Mpeg4Container::merge(Box *pElement) {
         // Mpeg4 containers do not support merging."""
-        std::cerr << "Cannot merge mpeg4 files" << std::endl;
+        std::cerr << "Cannot merge mpeg4 file_s" << std::endl;
         exit(0);
       }
 
       void Mpeg4Container::print_structure(const char *pIndent) {
-        // Print mpeg4 file structure recursively."""
+        // Print mpeg4 file_ structure recursively."""
         std::cout << "mpeg4 [" << m_iContentSize << "]" << std::endl;
         uint32_t iCount = (uint32_t)m_listContents.size();
         std::string strIndent = pIndent;
@@ -108,7 +108,7 @@ namespace FBCapture {
       }
 
       void Mpeg4Container::save(std::fstream &fsIn, std::fstream &fsOut, int32_t) {
-        // Save mpeg4 filecontent to file.
+        // Save mpeg4 file_content to file_.
         resize();
         uint32_t iNewPos = 0;
         std::vector<Box *>::iterator it = m_listContents.begin();

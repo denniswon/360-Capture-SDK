@@ -30,9 +30,9 @@ namespace FBCapture {
 
       /* FBCaptureModule */
 
-      FBCAPTURE_STATUS init();
-      FBCAPTURE_STATUS process();
-      FBCAPTURE_STATUS finalize();
+      FBCAPTURE_STATUS init() override;
+      FBCAPTURE_STATUS process() override;
+      FBCAPTURE_STATUS finalize() override;
       bool continueLoop() override;
     };
 

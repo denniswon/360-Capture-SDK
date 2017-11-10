@@ -8,12 +8,6 @@ Copyright	:
 
 #pragma once
 
-#define _WINSOCKAPI_
-#include <Windows.h>
-#include <stdio.h>
-#include <iostream>
-#include <cstring>
-
 #include "LibRTMP.h"
 #include "FBCaptureEncoderModule.h"
 #include "FlvPacketizer.h"
@@ -29,35 +23,35 @@ namespace FBCapture {
       EncodePacketProcessor();
       ~EncodePacketProcessor();
 
-      FBCAPTURE_STATUS initialize(DestinationURL dstUrl);
-      const string* getOutputPath(fileExt ext);
+      FBCAPTURE_STATUS initialize(DESTINATION_URL dstUrl);
+      const string* getOutputPath(FILE_EXT ext) const;
       void finalize();
       void release();
 
     protected:
-      FlvPacketizer* flvPacketizer;
-      LibRTMP* rtmp;
+      FlvPacketizer* flvPacketizer_;
+      LibRTMP* rtmp_;
 
-      char* destinationUrl;
+      char* destinationUrl_;
 
-      string* flvOutputPath;               // flv muxing output path
-      string* mp4OutputPath;               // mp4 muxing output path
-      string* h264OutputPath;              // input to transmuxer for video stream
-      string* aacOutputPath;               // input to transmuxer for audio stream
+      string* flvOutputPath_;               // flv muxing output path
+      string* mp4OutputPath_;               // mp4 muxing output path
+      string* h264OutputPath_;              // input to transmuxer for video stream
+      string* aacOutputPath_;               // input to transmuxer for audio stream
 
-      FILE* h264File;
-      FILE* aacFile;
-      FILE* flvFile;
+      FILE* h264File_;
+      FILE* aacFile_;
+      FILE* flvFile_;
 
-      bool avcSeqHdrSet;
-      bool aacSeqHdrSet;
+      bool avcSeqHdrSet_;
+      bool aacSeqHdrSet_;
 
-      FBCAPTURE_STATUS openOutputFiles(DestinationURL url);
+      FBCAPTURE_STATUS openOutputFiles(DESTINATION_URL url);
       FBCAPTURE_STATUS processVideoPacket(VideoEncodePacket* packet);
       FBCAPTURE_STATUS processAudioPacket(AudioEncodePacket* packet);
 
       /* EncodePacketProcessorDelegate */
-      FBCAPTURE_STATUS onPacket(EncodePacket* packet);
+      virtual FBCAPTURE_STATUS onPacket(EncodePacket* packet) override;
     };
   }
 }

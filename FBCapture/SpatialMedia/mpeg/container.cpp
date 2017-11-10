@@ -3,7 +3,7 @@
  * Copyright 2016 Varol Okan. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file_ except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -238,7 +238,7 @@ namespace FBCapture {
 
       void Container::save(std::fstream &fsIn, std::fstream &fsOut, int32_t iDelta) {
         // Saves box to out_fh reading uncached content from in_fh.
-        // iDelta : file change size for updating stco and co64 files.
+        // iDelta : file_ change size for updating stco and co64 file_s.
         if (m_iHeaderSize == 16) {
           writeUint32(fsOut, 1);
           fsOut.write(m_name, 4);

@@ -10,19 +10,15 @@
  */
 
 #pragma once
-#include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
 
 #include "NVidia/common/inc/dynlink_cuda.h" // <cuda.h>
-
 #include "NVidia/common/inc/nvEncodeAPI.h"
 #include "NVidia/common/inc/nvUtils.h"
 
 #define SET_VER(configStruct, type) {configStruct.version = type##_VER;}
 
 #if defined (NV_WINDOWS)
-#include "d3d9.h"
 #include "d3d11.h"
 #define NVENCAPI __stdcall
 #pragma warning(disable : 4996)
@@ -69,7 +65,7 @@ typedef struct _EncodeConfig {
   NV_ENC_BUFFER_FORMAT inputFormat;
   char            *qpDeltaMapFile;
   char* inputFileName;
-  const char* outputFileName;
+  const char* outputFile_Name;
   char* encoderPreset;
   char* inputFilePath;
   char *encCmdFileName;
@@ -170,8 +166,8 @@ protected:
 public:
   NVENCSTATUS NvEncOpenEncodeSession(void* device, uint32_t deviceType);
   NVENCSTATUS NvEncGetEncodeGUIDCount(uint32_t* encodeGUIDCount);
-  NVENCSTATUS NvEncGetEncodeProfileGUIDCount(GUID encodeGUID, uint32_t* encodeProfileGUIDCount);
-  NVENCSTATUS NvEncGetEncodeProfileGUIDs(GUID encodeGUID, GUID* profileGUIDs, uint32_t guidArraySize, uint32_t* GUIDCount);
+  NVENCSTATUS NvEncGetEncodeProfile_GUIDCount(GUID encodeGUID, uint32_t* encodeProfile_GUIDCount);
+  NVENCSTATUS NvEncGetEncodeProfile_GUIDs(GUID encodeGUID, GUID* profile_GUIDs, uint32_t guidArraySize, uint32_t* GUIDCount);
   NVENCSTATUS NvEncGetEncodeGUIDs(GUID* GUIDs, uint32_t guidArraySize, uint32_t* GUIDCount);
   NVENCSTATUS NvEncGetInputFormatCount(GUID encodeGUID, uint32_t* inputFmtCount);
   NVENCSTATUS NvEncGetInputFormats(GUID encodeGUID, NV_ENC_BUFFER_FORMAT* inputFmts, uint32_t inputFmtArraySize, uint32_t* inputFmtCount);

@@ -12,7 +12,7 @@ namespace FBCapture {
     public:
       VideoEncoder(FBCaptureEncoderDelegate *mainDelegate,
                    EncodePacketProcessorDelegate *processorDelegate,
-                   GraphicsCardType type,
+                   GRAPHICS_CARD_TYPE type,
                    ID3D11Device* device,
                    uint32_t bitrate,
                    uint32_t fps,
@@ -21,12 +21,12 @@ namespace FBCapture {
                    bool enableAsyncMode);
       ~VideoEncoder();
 
-      FBCAPTURE_STATUS encode(const void *texturePtr);
+      FBCAPTURE_STATUS encode(void *texturePtr);
 
     protected:
       GPUEncoder* gpuEncoder_;
 
-      GraphicsCardType graphicsCardType_;
+      GRAPHICS_CARD_TYPE graphicsCardType_;
       ID3D11Device* device_;
 
       uint32_t bitrate_;
@@ -36,12 +36,12 @@ namespace FBCapture {
 
       /* FBCaptureEncoderModule */
 
-      FBCAPTURE_STATUS init();
-      FBCAPTURE_STATUS getPacket(EncodePacket** packet);
-      FBCAPTURE_STATUS finalize();
+      FBCAPTURE_STATUS init() override;
+      FBCAPTURE_STATUS getPacket(EncodePacket** packet) override;
+      FBCAPTURE_STATUS finalize() override;
 
-      const PacketType type() {
-        return PacketType::VIDEO;
+      PACKET_TYPE type() override {
+        return PACKET_TYPE::VIDEO;
       }
 
     };

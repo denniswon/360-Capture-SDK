@@ -7,16 +7,9 @@ Copyright	:
 ****************************************************************************************************************/
 
 #pragma once
-#include <stdexcept>
-#include <iostream>
 #include <fstream>
-#include <vector>
 #include <string>
 #include <mutex>
-#include <ctime>
-#include <sstream>
-#include <iomanip>
-#include <time.h>
 
 using namespace std;
 #define DEBUG_LOG(message) \
@@ -40,8 +33,8 @@ namespace FBCapture {
   private:
     Log();
     virtual ~Log();
-    Log(const Log&);
-    static mutex mutex_;
+    Log(const Log&) = default;
+    static mutex mtx;
 
   public:
     static const string kLog;
@@ -51,13 +44,13 @@ namespace FBCapture {
 
     void log(const string& log, const string& logType);
     void log(const string& log, const string& var, const string& logType);
-    void release();
+    static void release();
 
     static string getCurrentTime();
 
   private:
-    static Log* kInstance;
-    static const char* kLogFile;
+    static Log* singleton;
+    static const char* logFile;
     ofstream output_;
 
     void logWriter(const string& log, const string& logType);

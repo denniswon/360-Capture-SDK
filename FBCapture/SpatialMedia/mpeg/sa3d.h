@@ -4,7 +4,7 @@
  * Copyright 2016 Varol Okan. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file_ except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -45,7 +45,7 @@ namespace FBCapture {
         SA3DBox(Box *);
         virtual ~SA3DBox();
 
-        // Loads the SA3D box located at position pos in a mp4 file.
+        // Loads the SA3D box located at position pos in a mp4 file_.
         static Box *load(std::fstream &fs, uint32_t iPos, uint32_t iEnd);
 
         static Box *create(int32_t iNumChannels, AudioMetadata &);

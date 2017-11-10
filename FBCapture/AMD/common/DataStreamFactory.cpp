@@ -12,7 +12,7 @@
 // Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation file_s (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
@@ -53,11 +53,11 @@ AMF_RESULT AMF_STD_CALL amf::AMFDataStream::OpenDataStream(const wchar_t* pFileU
     protocol = url.substr(0, found_pos);
     path = url.substr(found_pos + 3);
   } else {
-    protocol = L"file";
+    protocol = L"file_";
     path = url;
   }
   AMFDataStreamPtr ptr = NULL;
-  if (protocol == L"file") {
+  if (protocol == L"file_") {
     ptr = new AMFDataStreamFileImpl;
     res = AMF_OK;
   }

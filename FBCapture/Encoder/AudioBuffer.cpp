@@ -13,8 +13,8 @@ namespace FBCapture {
   namespace Audio {
 
     AudioBuffer::~AudioBuffer() {
-      for (int i = 0; i < numBuffers_; ++i) {
-        Buffer& buff = buffers_[i];
+      for (auto i = 0; i < numBuffers_; ++i) {
+        auto& buff = buffers_[i];
         if (buff.data_ != nullptr) {
           free(buff.data_);
         }
@@ -25,14 +25,14 @@ namespace FBCapture {
       }
     }
 
-    void AudioBuffer::initizalize(int numBuffers) {
+    void AudioBuffer::initizalize(const int numBuffers) {
       numBuffers_ = numBuffers;
       buffers_ = new Buffer[numBuffers];
       memset(buffers_, 0, numBuffers * sizeof(Buffer));
       mixBuffer_ = static_cast<float*>(malloc(kMIX_BUFFER_LENGTH * kSTEREO * sizeof(float)));
     }
 
-    void AudioBuffer::initializeBuffer(int index, int channelCount) {
+    void AudioBuffer::initializeBuffer(const int index, const int channelCount) const {
       if (index >= numBuffers_) {
         return; // out of bounds!
       }
@@ -42,15 +42,15 @@ namespace FBCapture {
       buff.channelCount_ = channelCount;
     }
 
-    void AudioBuffer::write(int index, const float* data, size_t lengthFrames) {
+    void AudioBuffer::write(const int index, const float* data, const size_t lengthFrames) const {
       if (index >= numBuffers_) {
         return; // out of bounds!
       }
 
-      Buffer& buff = buffers_[index];
+      auto& buff = buffers_[index];
       assert(buff.positionFrames_ >= 0);
 
-      const int requiredLengthFrames = buff.positionFrames_ + (int)lengthFrames;
+      const auto requiredLengthFrames = buff.positionFrames_ + static_cast<int>(lengthFrames);
 
       if (requiredLengthFrames > (1024 * 500)) {
         return; // sanity check!
@@ -62,14 +62,14 @@ namespace FBCapture {
       }
 
       memcpy(buff.data_ + buff.positionFrames_ * buff.channelCount_, data, lengthFrames * buff.channelCount_ * sizeof(float));
-      buff.positionFrames_ += (int)lengthFrames;
+      buff.positionFrames_ += static_cast<int>(lengthFrames);
       assert(buff.positionFrames_ >= 0);
     }
 
-    size_t AudioBuffer::getBufferLength() {
+    size_t AudioBuffer::getBufferLength() const {
       int len = kMIX_BUFFER_LENGTH;
 
-      for (int i = 0; i < numBuffers_; ++i) {
+      for (auto i = 0; i < numBuffers_; ++i) {
         if (buffers_[i].positionFrames_ < len) {
           assert(buffers_[i].positionFrames_ >= 0);
           len = buffers_[i].positionFrames_;
@@ -79,10 +79,10 @@ namespace FBCapture {
       return len * kSTEREO;
     }
 
-    void AudioBuffer::getBuffer(const float** buffer, size_t* length, bool silenceMode) {
+    void AudioBuffer::getBuffer(const float** buffer, size_t* length, const bool silenceMode) const {
       int len = kMIX_BUFFER_LENGTH;
 
-      for (int i = 0; i < numBuffers_; ++i) {
+      for (auto i = 0; i < numBuffers_; ++i) {
         if (buffers_[i].positionFrames_ < len) {
           assert(buffers_[i].positionFrames_ >= 0);
           len = buffers_[i].positionFrames_;
@@ -94,13 +94,13 @@ namespace FBCapture {
 
       memset(mixBuffer_, 0, kMIX_BUFFER_LENGTH * sizeof(float));
 
-      for (int i = 0; i < numBuffers_; ++i) {
-        Buffer& buff = buffers_[i];
-        for (int frame = 0; frame < len; ++frame) {
-          for (int chan = 0; chan < kSTEREO; ++chan) {
+      for (auto i = 0; i < numBuffers_; ++i) {
+        auto& buff = buffers_[i];
+        for (auto frame = 0; frame < len; ++frame) {
+          for (auto chan = 0; chan < kSTEREO; ++chan) {
             if (!silenceMode) {
               // read the most recent frames
-              int frameIdx = buff.positionFrames_ - len + frame;
+              const auto frameIdx = buff.positionFrames_ - len + frame;
               mixBuffer_[(frame * kSTEREO) + chan] += buff.data_[(frameIdx * buff.channelCount_) + chan % buff.channelCount_];
             }
           }
@@ -116,11 +116,11 @@ namespace FBCapture {
       *buffer = mixBuffer_;
     }
 
-    void AudioBuffer::convertTo16Bit(const short **outputBuffer, const float *buffer, size_t length) {
-      short* buf = static_cast<short*>(malloc(length * sizeof(short)));
+    void AudioBuffer::convertTo16Bit(const short **outputBuffer, const float *buffer, const size_t length) {
+      const auto buf = static_cast<short*>(malloc(length * sizeof(short)));
 
-      for (int i = 0; i < length; i++) {
-        buf[i] = (short)(buffer[i] * 32768);
+      for (auto i = 0; i < length; i++) {
+        buf[i] = static_cast<short>(buffer[i] * 32768);
       }
 
       *outputBuffer = buf;

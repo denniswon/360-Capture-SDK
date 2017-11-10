@@ -3,7 +3,7 @@
  * Copyright 2016 Varol Okan. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file_ except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -16,7 +16,7 @@
  *
  ****************************************************************************/
 
-// Tool for loading mpeg4 files and manipulating atoms.
+// Tool for loading mpeg4 file_s and manipulating atoms.
 #include <string.h>
 #include <iostream>
 
@@ -169,7 +169,7 @@ namespace FBCapture {
       }
 
       Box *Box::load(std::fstream &fs, uint32_t iPos, uint32_t iEnd) {
-        // Loads the box located at a position in a mp4 file
+        // Loads the box located at a position in a mp4 file_
         //
       //  if ( iPos < 1 ) // iPos is None:
       //       iPos = fs.tellg ( );
@@ -280,7 +280,7 @@ namespace FBCapture {
       }
 
       void Box::index_copy(std::fstream &fsIn, std::fstream &fsOut, Box *pBox, bool bBigMode, int32_t iDelta) {
-        // Update and copy index table for stco/co64 files.
+        // Update and copy index table for stco/co64 file_s.
         // pBox: box, stco/co64 box to copy.
         // bBigMode: if true == BigEndian Uint64, else BigEndian Int32
         // iDelta: int, offset change for index entries.

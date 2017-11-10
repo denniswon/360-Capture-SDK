@@ -8,25 +8,33 @@ using namespace std;
 namespace FBCapture {
   namespace Streaming {
 
-    typedef enum class PacketType {
-      VIDEO, AUDIO
-    } PacketType;
+    using PACKET_TYPE = enum class PacketType {
+      AUDIO,
+      VIDEO
+    };
 
     class EncodePacket {
     public:
-      PacketType packetType;
+      PACKET_TYPE packetType;
       uint8_t *buffer;
       uint32_t length;
       uint64_t timestamp;
       uint64_t duration;
       uint32_t frameIdx;
 
-      EncodePacket() {}
+      EncodePacket() :
+        packetType {},
+        buffer(NULL),
+        length { 0 },
+        timestamp { 0 },
+        duration { 0 },
+        frameIdx { 0 } {}
+
       virtual ~EncodePacket() {
         free(buffer);
       }
 
-      PacketType type() {
+      PACKET_TYPE type() const {
         return packetType;
       }
     };
@@ -37,9 +45,15 @@ namespace FBCapture {
       uint8_t *sps, *pps;
       uint32_t spsLen, ppsLen;
 
-      VideoEncodePacket() {
-        packetType = PacketType::VIDEO;
+      VideoEncodePacket():
+        isKeyframe{false},
+        sps(NULL),
+        pps(NULL),
+        spsLen(0),
+        ppsLen(0) {
+        packetType = PACKET_TYPE::VIDEO;
       }
+
       ~VideoEncodePacket() {
         free(sps);
         free(pps);
@@ -48,9 +62,13 @@ namespace FBCapture {
 
     class AudioEncodePacket : public EncodePacket {
     public:
-      AudioEncodePacket() {
-        packetType = PacketType::AUDIO;
+      AudioEncodePacket():
+        profileLevel(0),
+        sampleRate(0),
+        numChannels(0) {
+        packetType = PACKET_TYPE::AUDIO;
       }
+
       ~AudioEncodePacket() {}
 
       uint32_t profileLevel, sampleRate, numChannels;

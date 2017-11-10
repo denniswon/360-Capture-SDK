@@ -12,8 +12,7 @@ Copyright	:
 #include <atomic>
 #include <chrono>
 #include <assert.h>
-#include <direct.h>
-#define GetCurrentDir _getcwd
+#define GET_CURRENT_DIR _getcwd
 #include "NVidia/common/inc/nvEncodeAPI.h"
 #include "NVidia/common/inc/nvCPUOPSys.h"
 #include "NVidia/common/inc/NvHWEncoder.h"
@@ -22,12 +21,10 @@ Copyright	:
 
 #define MAX_ENCODE_QUEUE 32
 
-// SAFE_RELEASE macro
 #ifndef SAFE_RELEASE
 #define SAFE_RELEASE(a) if (a) { a->Release(); a= NULL; }
 #endif
 
-// BITSTREAM_BUFFER_SIZE macro
 #define BITSTREAM_BUFFER_SIZE 2 * 1024 * 1024
 
 namespace FBCapture {
@@ -42,13 +39,13 @@ namespace FBCapture {
       unsigned int availableIdx_;
       unsigned int pendingIdx_;
     public:
-      CNvQueue() : size_(0), availableIdx_(0), pendingIdx_(0), buffer_(NULL) {}
+      CNvQueue() : buffer_(NULL), size_(0), availableIdx_(0), pendingIdx_(0) {}
 
       ~CNvQueue() {
         delete[] buffer_;
       }
 
-      bool initialize(T *items, unsigned int size) {
+      bool initialize(T *items, const unsigned int size) {
         size_ = size;
         pendingCount_ = 0;
         availableIdx_ = 0;
@@ -61,11 +58,10 @@ namespace FBCapture {
       }
 
       T * getAvailable() {
-        T *item = NULL;
         if (pendingCount_.load() == size_) {
           return NULL;
         }
-        item = buffer_[availableIdx_];
+        T *item = buffer_[availableIdx_];
         availableIdx_ = (availableIdx_ + 1) % size_;
         ++pendingCount_;
         return item;
@@ -85,11 +81,11 @@ namespace FBCapture {
         --pendingCount_;
       }
 
-      int getPendingIndex() {
+      int getPendingIndex() const {
         return pendingIdx_;
       }
 
-      int getPendingCount() {
+      int getPendingCount() const {
         return pendingCount_.load();
       }
     };
@@ -134,17 +130,26 @@ namespace FBCapture {
       virtual ~NVEncoder();  // Destructor
 
       FBCAPTURE_STATUS setGraphicsDeviceD3D11(ID3D11Device* device) override;  // Set dx11 device pointer from Unity
-      FBCAPTURE_STATUS initialize(uint32_t bitrate, uint32_t fps, uint32_t gop, bool flipTexture, bool enableAsyncMode) override;
-      FBCAPTURE_STATUS encode(const void* texturePtr) override;
+      FBCAPTURE_STATUS initialize(uint32_t bitrate,
+                                  uint32_t fps,
+                                  uint32_t gop,
+                                  bool flipTexture,
+                                  bool enableAsyncMode) override;
+      FBCAPTURE_STATUS encode(void* texturePtr) override;
       FBCAPTURE_STATUS finalize() override;
-      FBCAPTURE_STATUS processOutput(void **buffer, uint32_t *length, uint64_t *timestamp, uint64_t *duration, uint32_t *frameIdx, bool *isKeyframe) override;
+      FBCAPTURE_STATUS processOutput(void **buffer,
+                                     uint32_t *length,
+                                     uint64_t *timestamp,
+                                     uint64_t *duration,
+                                     uint32_t *frameIdx,
+                                     bool *isKeyframe) override;
       FBCAPTURE_STATUS getSequenceParams(uint8_t **sps, uint32_t *spsLen, uint8_t **pps, uint32_t *ppsLen) override;
-      FBCAPTURE_STATUS saveScreenShot(const void* texturePtr, const DestinationURL dstUrl, bool flipTexture) override;
+      FBCAPTURE_STATUS saveScreenShot(void* texturePtr, const DESTINATION_URL dstUrl, bool flipTexture) override;
       uint32_t getPendingCount() override;
 
     protected:
       // To access the NVidia HW Encoder interfaces
-      CNvHWEncoder *nvHWEncoder_;
+      CNvHWEncoder *nvHwEncoder_;
       uint32_t encodeBufferCount_;
       uint32_t picStruct_;
       EncodeOutputBuffer eosOutputBfr_;
@@ -160,8 +165,8 @@ namespace FBCapture {
       ID3D11SamplerState*	samplerState_;
       ID3D11Texture2D* tex_;
       ID3D11Texture2D* newTex_;
-      ID3D11Buffer* vb_;  // Vertex Buffer
-      ID3D11Buffer* cb_;  // Constant Buffer
+      ID3D11Buffer* vertextBuffer_;
+      ID3D11Buffer* constBuffer_;
       ID3D11VertexShader* vertexShader_;
       ID3D11PixelShader* pixelShader_;
       ID3D11InputLayout* inputLayout_;
@@ -189,7 +194,7 @@ namespace FBCapture {
       // Encode images
       // This function should be called in the last stage in function calls
       // i.e. After allocating buffers and copying resources
-      NVENCSTATUS encodeFrame(EncodeBuffer *pEncodeBuffer, uint32_t width, uint32_t height, NV_ENC_BUFFER_FORMAT inputformat);
+      NVENCSTATUS encodeFrame(EncodeBuffer *pEncodeBuffer, uint32_t width, uint32_t height, NV_ENC_BUFFER_FORMAT inputformat) const;
 
       // Finalize the encoding session
       // This function will be called when encoding is done
@@ -211,7 +216,7 @@ namespace FBCapture {
       // Gets the feature level of the hardware device
       // https://msdn.microsoft.com/en-us/library/windows/desktop/ff476329(v=vs.85).aspx
       virtual bool getUsesReverseZ() {
-        return (int)device_->GetFeatureLevel() >= (int)D3D_FEATURE_LEVEL_10_0;
+        return static_cast<int>(device_->GetFeatureLevel()) >= static_cast<int>(D3D_FEATURE_LEVEL_10_0);
       }
     };
 

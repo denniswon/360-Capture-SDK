@@ -11,21 +11,19 @@ Copyright	:
 
 #pragma once
 
-#include <Audioclient.h>
-
 namespace FBCapture {
   namespace Audio {
 
     class AudioBuffer {
     public:
-      AudioBuffer() {}
+      AudioBuffer(): buffers_(NULL), numBuffers_(0), mixBuffer_(NULL) {}
       ~AudioBuffer();
 
       void initizalize(int numBuffers);
-      void initializeBuffer(int index, int channelCount); // WAVEFORMATEX *bufferFormat, IAudioClock* clock);
-      void write(int index, const float* data, size_t length);
-      void getBuffer(const float** buffer, size_t* length, bool silenceMode);
-      size_t getBufferLength();
+      void initializeBuffer(int index, int channelCount) const; // WAVEFORMATEX *bufferFormat, IAudioClock* clock);
+      void write(int index, const float* data, size_t length) const;
+      void getBuffer(const float** buffer, size_t* length, bool silenceMode) const;
+      size_t getBufferLength() const;
 
       static void convertTo16Bit(const short **outputBuffer, const float *buffer, size_t length);
 

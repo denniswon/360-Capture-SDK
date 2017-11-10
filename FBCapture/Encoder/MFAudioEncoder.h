@@ -11,14 +11,10 @@ Copyright	:
 #include <windows.h>
 #include <mfapi.h>
 #include <mfidl.h>
-#include <mferror.h>
 #include <mfreadwrite.h>
 #include <mftransform.h>
-#include <stdio.h>
 #include <iostream>
-#include <chrono>
 
-#include "AudioBuffer.h"
 #include "EncodePacket.h"
 #include "FBCaptureStatus.h"
 
@@ -52,10 +48,10 @@ namespace FBCapture {
       MFAudioEncoder();
       virtual ~MFAudioEncoder();
 
-      /* initializes the AAC encoder that can either encode wav input file or wav input stream packets as aac file/packet output */
+      /* initializes the AAC encoder that can either encode wav input file_ or wav input stream packets as aac file_/packet output */
       FBCAPTURE_STATUS initialize(WAVEFORMATEX *wavPWFX, const wchar_t* dstFile);
 
-      /* encode input wav audio file into aac encoded output file */
+      /* encode input wav audio file_ into aac encoded output file_ */
       FBCAPTURE_STATUS encodeFile(const wstring srcFile, const wstring dstFile);
 
       /* encode raw wav audio packets as stream of data */
@@ -67,11 +63,11 @@ namespace FBCapture {
        */
       FBCAPTURE_STATUS getOutputBuffer(uint8_t** buffer, DWORD *length, LONGLONG* pts, LONGLONG* duration);
 
-      /* finalizes encodePacket() session and closes the final aac output file */
+      /* finalizes encodePacket() session and closes the final aac output file_ */
       FBCAPTURE_STATUS finalize();
 
       /* gets AAC sequence header data for the encoding session */
-      FBCAPTURE_STATUS getSequenceParams(uint32_t* profileLevel, uint32_t* sampleRate, uint32_t* numChannels);
+      FBCAPTURE_STATUS getSequenceParams(uint32_t* profile_Level, uint32_t* sampleRate, uint32_t* numChannels) const;
 
       FBCAPTURE_STATUS getEncodePacket(AudioEncodePacket** packet);
 
@@ -81,10 +77,10 @@ namespace FBCapture {
 
       /* private helper functions used for encodeFile() */
 
-      HRESULT addSourceNode(IMFTopology* topology, IMFPresentationDescriptor* presDesc, IMFStreamDescriptor* streamDesc, IMFTopologyNode** node);
+      HRESULT addSourceNode(IMFTopology* topology, IMFPresentationDescriptor* presDesc, IMFStreamDescriptor* streamDesc, IMFTopologyNode** node) const;
       HRESULT addTransformNode(IMFTopology* topology, IMFTopologyNode* srcNode, IMFStreamDescriptor* streamDesc, IMFTopologyNode** node);
       HRESULT addOutputNode(IMFTopology* topology, IMFTopologyNode* transformNode, IMFTopologyNode** outputNode, const wstring dstFile);
-      HRESULT handleMediaEvent(IMFMediaEvent **mediaSessionEvent);
+      HRESULT handleMediaEvent(IMFMediaEvent **mediaSessionEvent) const;
 
       /* private helper functions used for encodePacket() */
 
@@ -96,53 +92,51 @@ namespace FBCapture {
       HRESULT shutdownSessions();
 
     private:
-
-      MFT_REGISTER_TYPE_INFO inInfo = { MFMediaType_Audio, MFAudioFormat_PCM };
-      MFT_REGISTER_TYPE_INFO outInfo = { MFMediaType_Audio, MFAudioFormat_AAC };
-
-      WAVEFORMATEX *inWavFormat;
-      WAVEFORMATEX *outWavFormat;
-      HEAACWAVEFORMAT* outAacWavFormat;
+      WAVEFORMATEX *inWavFormat_;
+      WAVEFORMATEX *outWavFormat_;
+      HEAACWAVEFORMAT* outAacWavFormat_;
 
       /* private class members for encodeFile() */
 
-      IMFMediaSession *mediaSession;
-      IMFMediaSource *mediaSource;
-      IMFMediaSink *sink;
+      IMFMediaSession *mediaSession_;
+      IMFMediaSource *mediaSource_;
+      IMFMediaSink *sink_;
 
-      IMFSourceResolver *sourceResolver;
+      IMFSourceResolver *sourceResolver_;
       IMFTopology *topology;
       IMFPresentationDescriptor *presDESC;
       IMFStreamDescriptor *streamDESC;
-      IMFTopologyNode *srcNode;
-      IMFTopologyNode *transformNode;
-      IMFTopologyNode *outputNode;
+      IMFTopologyNode *srcNode_;
+      IMFTopologyNode *transformNode_;
+      IMFTopologyNode *outputNode_;
 
       /* private class members for encodePacket() */
 
-      IMFTransform *transform;
-      IMFMediaType *inputMediaType;
-      IMFMediaType *outputMediaType;
+      IMFTransform *transform_;
+      IMFMediaType *inputMediaType_;
+      IMFMediaType *outputMediaType_;
 
-      DWORD streamIndex;
-      IMFByteStream *outputByteStream;
-      IMFStreamSink *outputStreamSink;
-      IMFMediaSink *outputMediaSink;
-      IMFSinkWriter *outputSinkWriter;
+      DWORD streamIndex_;
+      IMFByteStream *outputByteStream_;
+      IMFStreamSink *outputStreamSink_;
+      IMFMediaSink *outputMediaSink_;
+      IMFSinkWriter *outputSinkWriter_;
 
-      IMFSample* inputSample;
-      IMFMediaBuffer* inputBuffer;
+      IMFSample* inputSample_;
+      IMFMediaBuffer* inputBuffer_;
 
-      IMFSample *outputSample;
-      IMFMediaBuffer* outputBuffer;
+      IMFSample *outputSample_;
+      IMFMediaBuffer* outputBuffer_;
 
-      uint8_t *outputBufferData;
-      DWORD outputBufferLength;
-      LONGLONG outputSamplePts;
-      LONGLONG outputSampleDuration;
+      uint8_t *outputBufferData_;
+      DWORD outputBufferLength_;
+      LONGLONG outputSamplePts_;
+      LONGLONG outputSampleDuration_;
 
     public:
-      static const uint32_t profileLevel;
+      static const uint32_t kProfileLevel;
+      static const MFT_REGISTER_TYPE_INFO kInInfo;
+      static const MFT_REGISTER_TYPE_INFO kOutInfo;
     };
   }
 }

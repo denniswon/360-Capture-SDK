@@ -6,21 +6,18 @@
 namespace FBCapture {
   namespace Video {
 
-    GPUEncoder* GPUEncoder::getInstance(GraphicsCardType type, ID3D11Device* device) {
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
-
+    GPUEncoder* GPUEncoder::getInstance(const GRAPHICS_CARD_TYPE type, ID3D11Device* device) {
       GPUEncoder* gpuEncoder = NULL;
-      if (type == GraphicsCardType::NVIDIA && device) {
+      if (type == GRAPHICS_CARD_TYPE::NVIDIA && device) {
         gpuEncoder = new NVEncoder();
         // nvidia encoder sdk needs to pass d3d device pointer got from Unity
-        status = gpuEncoder->setGraphicsDeviceD3D11(device);
+        const auto status = gpuEncoder->setGraphicsDeviceD3D11(device);
         if (status != FBCAPTURE_OK) {
           delete gpuEncoder;
           gpuEncoder = NULL;
         }
-      } else if (type == GraphicsCardType::AMD) {
+      } else if (type == GRAPHICS_CARD_TYPE::AMD)
         gpuEncoder = new AMDEncoder();
-      }
 
       return gpuEncoder;
     }
@@ -30,44 +27,45 @@ namespace FBCapture {
       *instance = NULL;
     }
 
-    GPUEncoder::GPUEncoder() {
-      flipTexture_ = false;
-      bitrate_ = NULL;
-      fps_ = NULL;
-      gop_ = NULL;
-      outputBuffer_ = NULL;
-      outputBufferLength_ = 0;
-      timestamp = 0;
-      firstFrame = true;
-    }
+    GPUEncoder::GPUEncoder() :
+      bitrate_(NULL),
+      fps_(NULL),
+      gop_(NULL),
+      flipTexture_(false),
+      enableAsyncMode_(false),
+      outputBuffer_(NULL),
+      outputBufferLength_(0),
+      timestamp_(0),
+      firstFrame_(true) {}
 
     GPUEncoder::~GPUEncoder() {}
 
-    FBCAPTURE_STATUS GPUEncoder::initialize(uint32_t bitrate, uint32_t fps, uint32_t gop, bool flipTexture, bool enableAsyncMode) {
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
+    FBCAPTURE_STATUS GPUEncoder::initialize(const uint32_t bitrate,
+                                            const uint32_t fps,
+                                            const uint32_t gop,
+                                            const bool flipTexture,
+                                            const bool enableAsyncMode) {
       bitrate_ = bitrate;
       fps_ = fps;
       gop_ = gop;
       flipTexture_ = flipTexture;
       enableAsyncMode_ = enableAsyncMode;
-      return status;
+      return FBCAPTURE_OK;
     }
 
-    uint32_t GPUEncoder::getFps() {
+    uint32_t GPUEncoder::getFps() const {
       return fps_;
     }
 
-    uint32_t GPUEncoder::getBitrate() {
+    uint32_t GPUEncoder::getBitrate() const {
       return bitrate_;
     }
 
-    uint32_t GPUEncoder::getGop() {
+    uint32_t GPUEncoder::getGop() const {
       return gop_;
     }
 
     FBCAPTURE_STATUS GPUEncoder::getEncodePacket(VideoEncodePacket** packet) {
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
-
       void *buffer = nullptr;
       uint32_t length;
       uint64_t timestamp;
@@ -75,7 +73,7 @@ namespace FBCapture {
       uint32_t frameIdx;
       bool isKeyframe;
 
-      status = processOutput(&buffer, &length, &timestamp, &duration, &frameIdx, &isKeyframe);
+      auto status = processOutput(&buffer, &length, &timestamp, &duration, &frameIdx, &isKeyframe);
       if (status != FBCAPTURE_OK) {
         DEBUG_ERROR_VAR("Failed during processing encoded frame output", to_string(status));
         return status;

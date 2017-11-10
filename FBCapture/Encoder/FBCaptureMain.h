@@ -1,13 +1,5 @@
 #pragma once
 
-#define _WINSOCKAPI_
-#include <windows.h>
-#include <stdio.h>
-#include <iostream>
-#include <cstring>
-#include <thread>
-#include <condition_variable>
-#include <mutex>
 #include <atomic>
 
 #include "FBCaptureConfig.h"
@@ -33,74 +25,74 @@ namespace FBCapture {
 
   public:
     FBCAPTURE_STATUS initialize(FBCaptureConfig* config);
-    FBCAPTURE_STATUS startSession(DestinationURL dstUrl);
-    FBCAPTURE_STATUS encodeFrame(const void *texturePtr);
+    FBCAPTURE_STATUS startSession(DESTINATION_URL dstUrl);
+    FBCAPTURE_STATUS encodeFrame(void *texturePtr);
     FBCAPTURE_STATUS stopSession();
-    FBCAPTURE_STATUS saveScreenShot(const void *texturePtr, DestinationURL dstUrl, bool flipTexture);
-    FBCAPTURE_STATUS mute(bool mute);
-    FBCAPTURE_STATUS getSessionStatus();
+    FBCAPTURE_STATUS saveScreenShot(void *texturePtr, DESTINATION_URL dstUrl, bool flipTexture);
+    FBCAPTURE_STATUS mute(bool mute) const;
+    FBCAPTURE_STATUS getSessionStatus() const;
     FBCAPTURE_STATUS release();
 
     /* FBCaptureDelegate */
-    void onFinish();
-    void onFailure(FBCAPTURE_STATUS status);
+    void onFinish() override;
+    void onFailure(FBCAPTURE_STATUS status) override;
     /* FBCaptureEncoderDelegate */
-    void onFinish(PacketType type);
+    void onFinish(PACKET_TYPE type) override;
 
   protected:
     // captures raw wav audio packet using AudioCapture and encode them to aac using MFAudioEncoder
-    AudioEncoder* audioEncoder;
+    AudioEncoder* audioEncoder_;
 
     // only used if enableAsyncMode_ is true for non-blocking video frame encoding.
     // synchronous mode video encoding is done by the main thread client that calls encodeFrame()
-    VideoEncoder* videoEncoder;
+    VideoEncoder* videoEncoder_;
 
     // Used for taking screenshot and encode to jpg image in async mode
-    ImageEncoder* imageEncoder;
+    ImageEncoder* imageEncoder_;
 
     // takes EncodePackets as inputs from the main (or the video thread if enableAsyncMode) and audio thread
-    // and processes (saving to file, streaming) the encoded video/audio encoded packets onPacket() callback
-    EncodePacketProcessor* processor;
+    // and processes (saving to file_, streaming) the encoded video/audio encoded packets onPacket() callback
+    EncodePacketProcessor* processor_;
 
     // muxes the h264 and aac audio, mux to mp4 then inject spherical video metadata
-    Transmuxer* transmuxer;
+    Transmuxer* transmuxer_;
 
-    FrameCounter frameCounter;
+    FrameCounter frameCounter_;
 
-    atomic<bool> terminateSignaled;           // set to true if failure has occurred during any stage of FBCapture session
-    atomic<FBCAPTURE_STATUS> terminateStatus;
+    atomic<bool> terminateSignaled_;           // set to true if failure has occurred during any stage of FBCapture session
+    atomic<FBCAPTURE_STATUS> terminateStatus_;
 
-    atomic<bool> videoFinished;               // set to true when the video encoder thread finishes successfully
-    atomic<bool> audioFinished;               // set to true when the audio encoder thread finishes successfully
+    atomic<bool> videoFinished_;               // set to true when the video encoder thread finishes successfully
+    atomic<bool> audioFinished_;               // set to true when the audio encoder thread finishes successfully
 
-    atomic<FBCAPTURE_STATUS> sessionStatus;
+    atomic<FBCAPTURE_STATUS> sessionStatus_;
 
   protected:
-    struct FBCaptureSessionID {
-      atomic<uint32_t> sessionId_;
+    struct FBCaptureSessionId {
+      atomic<uint32_t> sessionId;
 
-      FBCaptureSessionID() : sessionId_(0) {}
-      FBCaptureSessionID(uint32_t sessionId) : sessionId_(sessionId) {}
+      FBCaptureSessionId() : sessionId(0) {}
+      explicit FBCaptureSessionId(const uint32_t sessionId) : sessionId(sessionId) {}
 
       void increment() {
-        ++sessionId_;
+        ++sessionId;
       }
 
       void reset() {
-        sessionId_ = 0;
+        sessionId = 0;
       }
 
-      uint32_t get() {
-        return sessionId_.load();
+      uint32_t get() const {
+        return sessionId.load();
       }
     };
 
-    FBCaptureSessionID activeSessionID;
-    FBCaptureSessionID completedSessionID;
+    FBCaptureSessionId activeSessionId_;
+    FBCaptureSessionId completedSessionId_;
 
   public:
     static ID3D11Device* device;                     // DirectX device
-    static GraphicsCardType graphicsCardType;        // GPU graphics card type
+    static GRAPHICS_CARD_TYPE graphicsCardType;      // GPU graphics card type
 
   };
 }

@@ -12,7 +12,7 @@
 // Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
+// of this software and associated documentation file_s (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
@@ -30,7 +30,7 @@
 // THE SOFTWARE.
 //
 ///-------------------------------------------------------------------------
-///  @file   Trace.h
+///  @file_   Trace.h
 ///  @brief  AMFTrace interface
 ///-------------------------------------------------------------------------
 #pragma once
@@ -73,7 +73,7 @@ namespace amf {
   *       Enable or disable async mode
   *
   *  There are 2 modes trace can work in:
-  *  Synchronous - every Trace call immediately goes to writers: console, windows, file, ...
+  *  Synchronous - every Trace call immediately goes to writers: console, windows, file_, ...
   *  Asynchronous - trace message go to thread local queues; separate thread passes them to writes
   *  Asynchronous mode offers no synchronization between working threads which are writing traces
   *  and high performance.
@@ -194,7 +194,7 @@ namespace amf {
     *   AMFTrace
     *
     *   @brief
-    *       Most general macro for trace, incapsulates passing source file and line
+    *       Most general macro for trace, incapsulates passing source file_ and line
     *******************************************************************************
     */
 #define AMFTrace(level, scope, /*format, */...) amf::AMFTraceW(AMF_UNICODE(__FILE__), __LINE__, level, scope, COUNT_ARGS(__VA_ARGS__) - 1, __VA_ARGS__)
@@ -271,7 +271,7 @@ namespace amf {
     *   AMF_FACILITY
     *
     *   @brief
-    *       Default value for AMF_FACILITY, this NULL leads to generate facility from source file name
+    *       Default value for AMF_FACILITY, this NULL leads to generate facility from source file_ name
     *
     *   This AMF_FACILITY could be overloaded locally with #define AMF_FACILITY L"LocalScope"
     *******************************************************************************

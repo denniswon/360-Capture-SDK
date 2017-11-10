@@ -4,7 +4,7 @@
  * Copyright 2016 Varol Okan. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file_ except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -17,7 +17,7 @@
  *
  ****************************************************************************/
 
-// Tool for loading mpeg4 files and manipulating atoms.
+// Tool for loading mpeg4 file_s and manipulating atoms.
 #include <stdint.h>
 #include <vector>
 

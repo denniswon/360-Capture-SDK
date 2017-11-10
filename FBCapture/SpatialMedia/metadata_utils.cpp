@@ -3,7 +3,7 @@
  * Copyright 2016 Varol Okan. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file_ except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -105,10 +105,10 @@ namespace FBCapture {
     }
 
     bool Utils::mpeg4_add_spherical(mpeg::Mpeg4Container *pMPEG4, fstream &inFile, string &strMetadata) {
-      // Adds a spherical uuid box to an mpeg4 file for all video tracks.
+      // Adds a spherical uuid box to an mpeg4 file_ for all video tracks.
       //
-      // pMPEG4 : Mpeg4 file structure to add metadata.
-      // inFile : file handle, Source for uncached file contents.
+      // pMPEG4 : Mpeg4 file_ structure to add metadata.
+      // inFile : file_ handle, Source for uncached file_ contents.
       // strMetadata: string, xml metadata to inject into spherical tag.
       if (!pMPEG4)
         return false;
@@ -159,8 +159,8 @@ namespace FBCapture {
     }
 
     bool Utils::mpeg4_add_spatial_audio(mpeg::Mpeg4Container *pMPEG4, fstream &inFile, AudioMetadata *pAudio) {
-      // pMPEG4 is Mpeg4 file structure to add metadata.
-      // inFile: file handle, Source for uncached file contents.
+      // pMPEG4 is Mpeg4 file_ structure to add metadata.
+      // inFile: file_ handle, Source for uncached file_ contents.
       // pAudio: dictionary ('ambisonic_type': string, 'ambisonic_order': int),
       //                      Supports 'periphonic' ambisonic type only.
       if (!pMPEG4)
@@ -323,10 +323,10 @@ namespace FBCapture {
       return m_mapSphericalDictionary;
     }
 
-    ParsedMetadata *Utils::parse_spherical_mpeg4(mpeg::Mpeg4Container *pMPEG4, fstream &file) // return metadata
+    ParsedMetadata *Utils::parse_spherical_mpeg4(mpeg::Mpeg4Container *pMPEG4, fstream &file_) // return metadata
     {
-      // pMPEG4 is Mpeg4 file structure to add metadata.
-      // file: handle, Source for uncached file contents.
+      // pMPEG4 is Mpeg4 file_ structure to add metadata.
+      // file_: handle, Source for uncached file_ contents.
       if (!pMPEG4)
         return NULL;
 
@@ -361,8 +361,8 @@ namespace FBCapture {
             if (pSub->m_pContents)
               pSubElementID = pSub->m_pContents;
             else {
-              file.seekg(pSub->content_start());
-              file.read((char *)buffer, 16);
+              file_.seekg(pSub->content_start());
+              file_.read((char *)buffer, 16);
               pSubElementID = buffer;
             }
             if (memcmp(pSubElementID, SPHERICAL_UUID_ID, 16) == 0) {
@@ -371,7 +371,7 @@ namespace FBCapture {
               else {
                 // fh.read(sub_element.content_size - 16)
                 pNewedBuffer = new  char[pSub->m_iContentSize - 16];
-                file.read(pNewedBuffer, pSub->m_iContentSize - 16);
+                file_.read(pNewedBuffer, pSub->m_iContentSize - 16);
                 pContents = (uint8_t *)pNewedBuffer;
               }
               // metadata.video[trackName] = parse_spherical_xml(contents, console)
@@ -381,7 +381,7 @@ namespace FBCapture {
 
           // Note: I am not sure if the Python script has a bug here wrt sub_element vs element
           //       The indentation is off !
-          // for element in mpeg4_file.moov_box.contents:
+          // for element in mpeg4_file_.moov_box.contents:
           //   if element.name == mpeg.constants.TAG_TRAK:
           //     for sub_element in element.contents:
           //       if sub_element.name == mpeg.constants.TAG_UUID:
@@ -413,7 +413,7 @@ namespace FBCapture {
                     if (!inArray(pSA3D->m_name, mpeg::constants::SOUND_SAMPLE_DESCRIPTIONS, iArraySize))
                       continue;
 
-                    pMetadata->m_iNumAudioChannels = get_num_audio_channels(pSTSD, file);
+                    pMetadata->m_iNumAudioChannels = get_num_audio_channels(pSTSD, file_);
                     vector<mpeg::Box *>::iterator it7 = pSA3D->m_listContents.begin();
                     while (it7 != pSA3D->m_listContents.end()) {
                       mpeg::Container *pItem = (mpeg::Container *)*it7++;
@@ -437,18 +437,18 @@ namespace FBCapture {
     }
 
     void Utils::parse_mpeg4(string &strFileName) {
-      fstream file(strFileName.c_str(), ios::in | ios::binary | ios::ate);
-      if (!file.is_open()) {
+      fstream file_(strFileName.c_str(), ios::in | ios::binary | ios::ate);
+      if (!file_.is_open()) {
         cerr << "Error \"" << strFileName << "\" does not exist or do not have permission." << endl;
         return;
       }
-      mpeg::Mpeg4Container *pMPEG4 = mpeg::Mpeg4Container::load(file);
+      mpeg::Mpeg4Container *pMPEG4 = mpeg::Mpeg4Container::load(file_);
       if (!pMPEG4) {
-        cerr << "Error, file could not be opened." << endl;
+        cerr << "Error, file_ could not be opened." << endl;
         return;
       }
       cout << "File loaded." << endl;
-      parse_spherical_mpeg4(pMPEG4, file);
+      parse_spherical_mpeg4(pMPEG4, file_);
     }
 
     bool Utils::inject_mpeg4(const string &strInFile, string &strOutFile, Metadata *pMetadata) {
@@ -459,7 +459,7 @@ namespace FBCapture {
       }
       mpeg::Mpeg4Container *pMPEG4 = mpeg::Mpeg4Container::load(inFile);
       if (!pMPEG4) {
-        cerr << "Error, file could not be opened." << endl;
+        cerr << "Error, file_ could not be opened." << endl;
         return false;
       }
       bool bRet = mpeg4_add_spherical(pMPEG4, inFile, pMetadata->getVideoXML());
@@ -474,12 +474,12 @@ namespace FBCapture {
           return false;
         }
       }
-      cout << "Saved file settings" << endl;
+      cout << "Saved file_ settings" << endl;
       parse_spherical_mpeg4(pMPEG4, inFile);
 
       fstream outFile(strOutFile.c_str(), ios::out | ios::binary);
       if (!outFile.is_open()) {
-        cerr << "Error file: \"" << strOutFile << "\" could not create or do not have permission." << endl;
+        cerr << "Error file_: \"" << strOutFile << "\" could not create or do not have permission." << endl;
         return false;
       }
       pMPEG4->save(inFile, outFile, 0);
@@ -502,7 +502,7 @@ namespace FBCapture {
 
       cout << "Processing: " << strFile << endl;
       if (!inArray((char *)strExt.c_str(), MPEG_FILE_EXTENSIONS, iArraySize)) {
-        cerr << "Unknown file type" << endl;
+        cerr << "Unknown file_ type" << endl;
         return;
       }
       return parse_mpeg4(strFile);
@@ -527,7 +527,7 @@ namespace FBCapture {
 
       cout << "Processing: " << strInFile << endl;
       if (!inArray((char *)strExt.c_str(), MPEG_FILE_EXTENSIONS, iArraySize)) {
-        cerr << "Unknown file type" << endl;
+        cerr << "Unknown file_ type" << endl;
         return false;
       }
       return inject_mpeg4(strInFile, strOutFile, pMetadata);
@@ -612,7 +612,7 @@ namespace FBCapture {
 
     uint8_t Utils::get_descriptor_length(fstream &inFile) {
       // Derives the length of the MP4 elementary stream descriptor at the
-      // current position in the input file.
+      // current position in the input file_.
       int t;
       uint8_t iVal = 0;
       uint8_t descriptor_length = 0;
@@ -758,7 +758,7 @@ namespace FBCapture {
     }
 
     uint32_t Utils::get_num_audio_tracks(mpeg::Mpeg4Container *pMPEG4, fstream &inFile) {
-      // Returns the number of audio track in the input mpeg4 file.
+      // Returns the number of audio track in the input mpeg4 file_.
       int num_audio_tracks = 0;
       mpeg::Container *pMoov = (mpeg::Container *)pMPEG4->m_pMoovBox;
       if (!pMoov)

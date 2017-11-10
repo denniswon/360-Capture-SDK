@@ -1,7 +1,7 @@
 ﻿//--------------------------------------------------------------------------------------
 // File: ScreenGrab.cpp
 //
-// Function for capturing a 2D texture and saving it to a file (aka a 'screenshot'
+// Function for capturing a 2D texture and saving it to a file_ (aka a 'screenshot'
 // when used on a Direct3D 11 Render Target).
 //
 // Note these functions are useful as a light-weight runtime screen grabber. For
@@ -49,7 +49,7 @@ using Microsoft::WRL::ComPtr;
 #endif /* defined(MAKEFOURCC) */
 
 //--------------------------------------------------------------------------------------
-// DDS file structure definitions
+// DDS file_ structure definitions
 //
 // See DDS.h in the 'Texconv' sample and the 'DirectXTex' library
 //--------------------------------------------------------------------------------------
@@ -205,10 +205,10 @@ namespace {
     return (h == INVALID_HANDLE_VALUE) ? 0 : h;
   }
 
-  class auto_delete_file {
+  class auto_delete_file_ {
   public:
-    auto_delete_file(HANDLE hFile) : m_handle(hFile) {}
-    ~auto_delete_file() {
+    auto_delete_file_(HANDLE hFile) : m_handle(hFile) {}
+    ~auto_delete_file_() {
       if (m_handle) {
         FILE_DISPOSITION_INFO info = {};
         info.DeleteFile = TRUE;
@@ -223,30 +223,30 @@ namespace {
   private:
     HANDLE m_handle;
 
-    auto_delete_file(const auto_delete_file&) = delete;
-    auto_delete_file& operator=(const auto_delete_file&) = delete;
+    auto_delete_file_(const auto_delete_file_&) = delete;
+    auto_delete_file_& operator=(const auto_delete_file_&) = delete;
   };
 
-  class auto_delete_file_wic {
+  class auto_delete_file__wic {
   public:
-    auto_delete_file_wic(ComPtr<IWICStream>& hFile, const wchar_t* szFile) : m_handle(hFile), m_filename(szFile) {}
-    ~auto_delete_file_wic() {
-      if (m_filename) {
+    auto_delete_file__wic(ComPtr<IWICStream>& hFile, const wchar_t* szFile) : m_handle(hFile), m_file_name(szFile) {}
+    ~auto_delete_file__wic() {
+      if (m_file_name) {
         m_handle.Reset();
-        DeleteFileW(m_filename);
+        DeleteFileW(m_file_name);
       }
     }
 
     void clear() {
-      m_filename = 0;
+      m_file_name = 0;
     }
 
   private:
-    const wchar_t* m_filename;
+    const wchar_t* m_file_name;
     ComPtr<IWICStream>& m_handle;
 
-    auto_delete_file_wic(const auto_delete_file_wic&) = delete;
-    auto_delete_file_wic& operator=(const auto_delete_file_wic&) = delete;
+    auto_delete_file__wic(const auto_delete_file__wic&) = delete;
+    auto_delete_file__wic& operator=(const auto_delete_file__wic&) = delete;
   };
 
   //--------------------------------------------------------------------------------------
@@ -726,8 +726,8 @@ namespace {
   //--------------------------------------------------------------------------------------
 HRESULT Directx::SaveDDSTextureToFile(_In_ ID3D11DeviceContext* pContext,
                                       _In_ ID3D11Resource* pSource,
-                                      _In_z_ const wchar_t* fileName) {
-  if (!fileName)
+                                      _In_z_ const wchar_t* file_Name) {
+  if (!file_Name)
     return E_INVALIDARG;
 
   D3D11_TEXTURE2D_DESC desc = {};
@@ -736,26 +736,26 @@ HRESULT Directx::SaveDDSTextureToFile(_In_ ID3D11DeviceContext* pContext,
   if (FAILED(hr))
     return hr;
 
-  // Create file
+  // Create file_
 #if (_WIN32_WINNT >= _WIN32_WINNT_WIN8)
-  ScopedHandle hFile(safe_handle(CreateFile2(fileName, GENERIC_WRITE | DELETE, 0, CREATE_ALWAYS, nullptr)));
+  ScopedHandle hFile(safe_handle(CreateFile2(file_Name, GENERIC_WRITE | DELETE, 0, CREATE_ALWAYS, nullptr)));
 #else
-  ScopedHandle hFile(safe_handle(CreateFileW(fileName, GENERIC_WRITE | DELETE, 0, nullptr, CREATE_ALWAYS, 0, nullptr)));
+  ScopedHandle hFile(safe_handle(CreateFileW(file_Name, GENERIC_WRITE | DELETE, 0, nullptr, CREATE_ALWAYS, 0, nullptr)));
 #endif
   if (!hFile) {
-    DEBUG_ERROR("Failed to create file from CreateFile2");
+    DEBUG_ERROR("Failed to create file_ from CreateFile2");
     return HRESULT_FROM_WIN32(GetLastError());
   }
 
-  auto_delete_file delonfail(hFile.get());
+  auto_delete_file_ delonfail(hFile.get());
 
   // Setup header
   const size_t MAX_HEADER_SIZE = sizeof(uint32_t) + sizeof(DDS_HEADER) + sizeof(DDS_HEADER_DXT10);
-  uint8_t fileHeader[MAX_HEADER_SIZE];
+  uint8_t file_Header[MAX_HEADER_SIZE];
 
-  *reinterpret_cast<uint32_t*>(&fileHeader[0]) = DDS_MAGIC;
+  *reinterpret_cast<uint32_t*>(&file_Header[0]) = DDS_MAGIC;
 
-  auto header = reinterpret_cast<DDS_HEADER*>(&fileHeader[0] + sizeof(uint32_t));
+  auto header = reinterpret_cast<DDS_HEADER*>(&file_Header[0] + sizeof(uint32_t));
   size_t headerSize = sizeof(uint32_t) + sizeof(DDS_HEADER);
   memset(header, 0, sizeof(DDS_HEADER));
   header->size = sizeof(DDS_HEADER);
@@ -813,7 +813,7 @@ HRESULT Directx::SaveDDSTextureToFile(_In_ ID3D11DeviceContext* pContext,
       memcpy_s(&header->ddspf, sizeof(header->ddspf), &DDSPF_DX10, sizeof(DDS_PIXELFORMAT));
 
       headerSize += sizeof(DDS_HEADER_DXT10);
-      extHeader = reinterpret_cast<DDS_HEADER_DXT10*>(reinterpret_cast<uint8_t*>(&fileHeader[0]) + sizeof(uint32_t) + sizeof(DDS_HEADER));
+      extHeader = reinterpret_cast<DDS_HEADER_DXT10*>(reinterpret_cast<uint8_t*>(&file_Header[0]) + sizeof(uint32_t) + sizeof(DDS_HEADER));
       memset(extHeader, 0, sizeof(DDS_HEADER_DXT10));
       extHeader->dxgiFormat = desc.Format;
       extHeader->resourceDimension = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
@@ -863,7 +863,7 @@ HRESULT Directx::SaveDDSTextureToFile(_In_ ID3D11DeviceContext* pContext,
 
   // Write header & pixels
   DWORD bytesWritten;
-  if (!WriteFile(hFile.get(), fileHeader, static_cast<DWORD>(headerSize), &bytesWritten, nullptr)) {
+  if (!WriteFile(hFile.get(), file_Header, static_cast<DWORD>(headerSize), &bytesWritten, nullptr)) {
     DEBUG_ERROR("Failed to write header");
     return HRESULT_FROM_WIN32(GetLastError());
   }
@@ -888,10 +888,10 @@ HRESULT Directx::SaveDDSTextureToFile(_In_ ID3D11DeviceContext* pContext,
 HRESULT Directx::SaveWICTextureToFile(_In_ ID3D11DeviceContext* pContext,
                                       _In_ ID3D11Resource* pSource,
                                       _In_ REFGUID guidContainerFormat,
-                                      _In_z_ const wchar_t* fileName,
+                                      _In_z_ const wchar_t* file_Name,
                                       _In_opt_ const GUID* targetFormat,
                                       _In_opt_ std::function<void(IPropertyBag2*)> setCustomProps) {
-  if (!fileName)
+  if (!file_Name)
     return E_INVALIDARG;
 
   D3D11_TEXTURE2D_DESC desc = {};
@@ -959,13 +959,13 @@ HRESULT Directx::SaveWICTextureToFile(_In_ ID3D11DeviceContext* pContext,
     return hr;
   }
 
-  hr = stream->InitializeFromFilename(fileName, GENERIC_WRITE);
+  hr = stream->InitializeFromFilename(file_Name, GENERIC_WRITE);
   if (FAILED(hr)) {
-    DEBUG_ERROR("Failed to initialize stream from file");
+    DEBUG_ERROR("Failed to initialize stream from file_");
     return hr;
   }
 
-  auto_delete_file_wic delonfail(stream, fileName);
+  auto_delete_file__wic delonfail(stream, file_Name);
 
   ComPtr<IWICBitmapEncoder> encoder;
   hr = pWIC->CreateEncoder(guidContainerFormat, 0, encoder.GetAddressOf());
@@ -990,7 +990,7 @@ HRESULT Directx::SaveWICTextureToFile(_In_ ID3D11DeviceContext* pContext,
 
 
   if (targetFormat && memcmp(&guidContainerFormat, &GUID_ContainerFormatBmp, sizeof(WICPixelFormatGUID)) == 0 && g_WIC2) {
-    // Opt-in to the WIC2 support for writing 32-bit Windows BMP files with an alpha channel
+    // Opt-in to the WIC2 support for writing 32-bit Windows BMP file_s with an alpha channel
     PROPBAG2 option = {};
     option.pstrName = const_cast<wchar_t*>(L"EnableV5Header32bppBGRA");
 

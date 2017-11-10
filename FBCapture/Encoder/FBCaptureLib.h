@@ -42,10 +42,10 @@ extern "C" {
     * Function: FBCapture::StartSession()
     *
     * Notifies the FBCapture processes of a video encoding/live streaming session starting.
-    * Requires DestinationURL input, which can be either a file path or streaming server url.
+    * Requires DestinationURL input, which can be either a file_ path or streaming server url.
     * FBCapture will determine if the session is capture or live streaming with the URL header.
     * For live streaming, rtmp://, http://, https://, rtp:// are identified, while all others will
-    * be considered as capture and try to open the file local. If live streaming, this call initializes
+    * be considered as capture and try to open the file_ local. If live streaming, this call initializes
     * RTMP stream.
     *
     * If empty string or null is passed in as the DestinationURL for video capture, the mp4 output will be
@@ -71,7 +71,7 @@ extern "C" {
     * set during itialization. If not called per frame rate configured, a/v will be out of sync.
     */
     extern FBCAPTURE_API FBCAPTURE_STATUS APIENTRY EncodeFrame(FBCAPTURE_HANDLE handle,
-                                                               const void* texturePtr);
+                                                               void* texturePtr);
 
     /*
     * Function: FBCapture::StopSession():
@@ -95,8 +95,8 @@ extern "C" {
     /*
     * Function: FBCapture::SaveScreenShot():
     *
-    * Encodes the frame render texture pointed by the texture pointer parameter into jpeg image file, and
-    * save the image file to the specified destination jpg url path.
+    * Encodes the frame render texture pointed by the texture pointer parameter into jpeg image file_, and
+    * save the image file_ to the specified destination jpg url path.
     * If flipTexture is true, then the captured screenshot will be flipped horizontally.
     *
     * If empty string or null is passed in as the DestinationURL for video capture, the jpg output will be
@@ -115,7 +115,7 @@ extern "C" {
     * but FBCaptureConfig options do not apply for screenshot as they are only for video sessions.
     */
     extern FBCAPTURE_API FBCAPTURE_STATUS APIENTRY SaveScreenShot(FBCAPTURE_HANDLE handle,
-                                                                  const void *texturePtr,
+                                                                  void *texturePtr,
                                                                   const wchar_t* dstUrl,
                                                                   bool flipTexture);
 

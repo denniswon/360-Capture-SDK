@@ -7,11 +7,15 @@ Copyright	:
 ****************************************************************************************************************/
 
 #include "AMDEncoder.h"
+#include <AMD/include/components/VideoEncoderHEVC.h>
 
 namespace FBCapture {
   namespace Video {
 
-    PollingThread::PollingThread(amf::AMFContext *context, amf::AMFComponent *encoder, const char *pFileName) : context_(context), encoder_(encoder), file_(NULL) {
+    PollingThread::PollingThread(amf::AMFContext *context, amf::AMFComponent *encoder, const char *pFileName) :
+      context_(context),
+      encoder_(encoder),
+      file_(NULL) {
       if (pFileName)
         file_ = fopen(pFileName, "wb");
     }
@@ -28,7 +32,7 @@ namespace FBCapture {
       amf_pts encodeDuration = 0;
       amf_pts lastPollTime = 0;
 
-      AMF_RESULT res = AMF_OK; // error checking can be added later
+      auto res = AMF_OK; // error checking can be added later
       while (true) {
         amf::AMFDataPtr data;
         res = encoder_->QueryOutput(&data);
@@ -36,7 +40,7 @@ namespace FBCapture {
           break; // Drain complete
         }
         if (data != NULL) {
-          amf_pts pollTime = amf_high_precision_clock();
+          const auto pollTime = amf_high_precision_clock();
           amf_pts startTime = 0;
           data->GetProperty(START_TIME_PROPERTY, &startTime);
           if (startTime < lastPollTime) // remove wait time if submission was faster then encode
@@ -69,14 +73,20 @@ namespace FBCapture {
       context_ = NULL;
     }
 
-    AMDEncoder::AMDEncoder() {
-      memoryTypeIn_ = amf::AMF_MEMORY_DX11;
-      formatIn_ = amf::AMF_SURFACE_RGBA;
-
-      maximumSpeed_ = true;
-      encodingConfigInitiated_ = false;
-      file_ = NULL;
-    }
+    AMDEncoder::AMDEncoder() :
+      thread_(NULL),
+      codec_(NULL),
+      memoryTypeIn_(amf::AMF_MEMORY_DX11),
+      formatIn_(amf::AMF_SURFACE_RGBA),
+      widthIn_(0),
+      heightIn_(0),
+      maximumSpeed_(true),
+      encodingConfigInitiated_(false),
+      frameIdx_(0),
+      tex_(NULL),
+      newTex_(NULL),
+      deviceDX11_(NULL),
+      file_(NULL) {}
 
     AMDEncoder::~AMDEncoder() {
       if (thread_)
@@ -89,10 +99,8 @@ namespace FBCapture {
     }
 
     FBCAPTURE_STATUS AMDEncoder::finalize() {
-      AMF_RESULT res = AMF_OK;  // error checking can be added later
-
       while (true) {
-        res = encoder_->Drain();
+        const auto res = encoder_->Drain();
         if (res != AMF_INPUT_FULL)  // handle full queue
         {
           break;
@@ -114,7 +122,7 @@ namespace FBCapture {
       encodingConfigInitiated_ = false;
 
       if (g_AMFFactory.GetFactory()) {
-        res = g_AMFFactory.Terminate();
+        const auto res = g_AMFFactory.Terminate();
         if (res != AMF_OK) {
           DEBUG_ERROR("Faield to release AMF resources");
           return FBCAPTURE_GPU_ENCODER_FINALIZE_FAILED;
@@ -128,9 +136,7 @@ namespace FBCapture {
       return FBCAPTURE_OK;
     }
 
-    FBCAPTURE_STATUS AMDEncoder::initialization(const void* texturePtr) {
-      AMF_RESULT hr = AMF_OK;
-
+    FBCAPTURE_STATUS AMDEncoder::initialization(void* texturePtr) {
       codec_ = AMFVideoEncoderVCE_AVC;
       memoryTypeIn_ = amf::AMF_MEMORY_DX11;
       formatIn_ = amf::AMF_SURFACE_RGBA;
@@ -138,7 +144,7 @@ namespace FBCapture {
       encodingConfigInitiated_ = false;
 
       if (g_AMFFactory.GetFactory() == NULL) {
-        hr = g_AMFFactory.Init();
+        const auto hr = g_AMFFactory.Init();
         if (hr != AMF_OK) {
           DEBUG_ERROR("Failed to initialize AMF Factory. Display driver should be Crimson 17.1.1 or newer");
           return FBCAPTURE_GPU_ENCODER_UNSUPPORTED_DRIVER;
@@ -148,7 +154,7 @@ namespace FBCapture {
       ::amf_increase_timer_precision();
       // context
       if (context_ == NULL) {
-        hr = g_AMFFactory.GetFactory()->CreateContext(&context_);
+        auto hr = g_AMFFactory.GetFactory()->CreateContext(&context_);
         if (hr != AMF_OK) {
           DEBUG_ERROR("Failed to create AMF context");
           return FBCAPTURE_GPU_ENCODER_INIT_FAILED;
@@ -162,10 +168,10 @@ namespace FBCapture {
         }
       }
 
-      deviceDX11_ = (ID3D11Device*)context_->GetDX11Device();
+      deviceDX11_ = static_cast<ID3D11Device*>(context_->GetDX11Device());
 
       D3D11_TEXTURE2D_DESC desc;
-      tex_ = (ID3D11Texture2D*)texturePtr;
+      tex_ = static_cast<struct ID3D11Texture2D*>(texturePtr);
       tex_->GetDesc(&desc);
       desc.BindFlags = 0;
       desc.MiscFlags &= D3D11_RESOURCE_MISC_TEXTURECUBE;
@@ -176,8 +182,8 @@ namespace FBCapture {
       heightIn_ = desc.Height;
 
       // Call pure dx11 function(HRESULT) to create texture which will be used for copying RenderTexture to AMF buffer.
-      HRESULT hres = deviceDX11_->CreateTexture2D(&desc, NULL, &newTex_);
-      if (FAILED(hres)) {
+      auto hr = deviceDX11_->CreateTexture2D(&desc, NULL, &newTex_);
+      if (FAILED(hr)) {
         DEBUG_ERROR("Failed to create texture 2d");
         return FBCAPTURE_GPU_ENCODER_INIT_FAILED;
       }
@@ -302,22 +308,20 @@ namespace FBCapture {
         return FBCAPTURE_GPU_ENCODER_INIT_FAILED;
       }
 
-      /*thread_ = new PollingThread(context_, encoder_, outputPath_);
-      thread_->Start();*/
+//      thread_ = new PollingThread(context_, encoder_, outputPath_);
+//      thread_->Start();
 
       encodingConfigInitiated_ = true;
       frameIdx_ = 0;
 
       // encode some frames
-      amf_int32 submitted = 0;
       DEBUG_LOG("Encoding configuration is initiated");
 
       return FBCAPTURE_OK;
     }
 
-    FBCAPTURE_STATUS AMDEncoder::encode(const void* texturePtr) {
-      AMF_RESULT hr = AMF_OK;
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
+    FBCAPTURE_STATUS AMDEncoder::encode(void* texturePtr) {
+      auto status = FBCAPTURE_OK;
 
       if (!encodingConfigInitiated_ && texturePtr) {
         status = initialization(texturePtr);
@@ -329,7 +333,7 @@ namespace FBCapture {
 
       if (surfaceIn_ == NULL) {
         surfaceIn_ = NULL;
-        hr = context_->AllocSurface(memoryTypeIn_, formatIn_, widthIn_, heightIn_, &surfaceIn_);
+        const auto hr = context_->AllocSurface(memoryTypeIn_, formatIn_, widthIn_, heightIn_, &surfaceIn_);
         if (hr != AMF_OK) {
           DEBUG_ERROR("Failed to allocate surface");
           return FBCAPTURE_GPU_ENCODER_INIT_FAILED;
@@ -341,31 +345,31 @@ namespace FBCapture {
         }
       }
 
-      chrono::time_point<chrono::system_clock> tp = chrono::system_clock::now();
-      if (firstFrame) {
-        firstFrameTp = tp;
-        firstFrame = false;
-        timestamp = 0;
+      const auto tp = chrono::system_clock::now();
+      if (firstFrame_) {
+        firstFrameTp_ = tp;
+        firstFrame_ = false;
+        timestamp_ = 0;
       } else {
-        timestamp = (uint64_t)(chrono::duration_cast<chrono::nanoseconds>(tp - firstFrameTp).count()) / 100;
+        timestamp_ = static_cast<uint64_t>(chrono::duration_cast<chrono::nanoseconds>(tp - firstFrameTp_).count()) / 100;
       }
 
       // encode
-      amf_pts start_time = amf_high_precision_clock();
-      surfaceIn_->SetProperty(START_TIME_PROPERTY, start_time);
-      surfaceIn_->SetProperty(TIME_STAMP, timestamp);
+      const auto startTime = amf_high_precision_clock();
+      surfaceIn_->SetProperty(START_TIME_PROPERTY, startTime);
+      surfaceIn_->SetProperty(TIME_STAMP, timestamp_);
 
       if (gop_ > 0) {
-        AMF_VIDEO_ENCODER_PICTURE_TYPE_ENUM type = frameIdx_ % gop_ == 0
+        const auto type = frameIdx_ % gop_ == 0
           ? AMF_VIDEO_ENCODER_PICTURE_TYPE_I
           : AMF_VIDEO_ENCODER_PICTURE_TYPE_NONE;
-        hr = encoder_->SetProperty(AMF_VIDEO_ENCODER_FORCE_PICTURE_TYPE, type);
+        encoder_->SetProperty(AMF_VIDEO_ENCODER_FORCE_PICTURE_TYPE, type);
       }
 
-      hr = encoder_->SetProperty(AMF_VIDEO_ENCODER_INSERT_SPS, true);
-      hr = encoder_->SetProperty(AMF_VIDEO_ENCODER_INSERT_PPS, true);
+      encoder_->SetProperty(AMF_VIDEO_ENCODER_INSERT_SPS, true);
+      encoder_->SetProperty(AMF_VIDEO_ENCODER_INSERT_PPS, true);
 
-      hr = encoder_->SubmitInput(surfaceIn_);
+      const auto hr = encoder_->SubmitInput(surfaceIn_);
       if (hr == AMF_INPUT_FULL) {  // handle full queue
         return FBCAPTURE_GPU_ENCODER_BUFFER_FULL;
       } else {
@@ -377,12 +381,14 @@ namespace FBCapture {
       return status;
     }
 
-    FBCAPTURE_STATUS AMDEncoder::processOutput(void **buffer, uint32_t *length, uint64_t *timestamp, uint64_t *duration, uint32_t *frameIdx, bool *isKeyframe) {
-      AMF_RESULT hr = AMF_OK; // error checking can be added later
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
-
+    FBCAPTURE_STATUS AMDEncoder::processOutput(void **buffer,
+                                               uint32_t *length,
+                                               uint64_t *timestamp,
+                                               uint64_t *duration,
+                                               uint32_t *frameIdx,
+                                               bool *isKeyframe) {
       amf::AMFDataPtr data;
-      hr = encoder_->QueryOutput(&data);
+      const auto hr = encoder_->QueryOutput(&data);
       if (hr == AMF_EOF)
         return FBCAPTURE_GPU_ENCODER_BUFFER_EMPTY;
 
@@ -393,80 +399,71 @@ namespace FBCapture {
 
       *buffer = malloc(amfBuffer->GetSize());
       memcpy(*buffer, amfBuffer->GetNative(), amfBuffer->GetSize());
-      *length = (uint32_t)amfBuffer->GetSize();
+      *length = static_cast<uint32_t>(amfBuffer->GetSize());
       *timestamp = amfBuffer->GetPts();
       *frameIdx = frameIdx_;
 
       amf_int64 frameType;
-      hr = amfBuffer->GetProperty(AMF_VIDEO_ENCODER_OUTPUT_DATA_TYPE, &frameType);
+      amfBuffer->GetProperty(AMF_VIDEO_ENCODER_OUTPUT_DATA_TYPE, &frameType);
       *isKeyframe = frameType == AMF_VIDEO_ENCODER_OUTPUT_DATA_TYPE_IDR ||
         frameType == AMF_VIDEO_ENCODER_OUTPUT_DATA_TYPE_I;
 
       if (file_)
         fwrite(amfBuffer->GetNative(), 1, amfBuffer->GetSize(), file_);
 
-      return status;
+      return FBCAPTURE_OK;
     }
 
     uint32_t AMDEncoder::getPendingCount() {
-      amf::AMFComponentExPtr encoder = amf::AMFComponentExPtr(encoder_);
+      auto encoder = amf::AMFComponentExPtr(encoder_);
       return encoder->GetInputCount();
     }
 
-    FBCAPTURE_STATUS AMDEncoder::getSequenceParams(uint8_t **sps, uint32_t *sps_len, uint8_t **pps, uint32_t *pps_len) {
-      AMF_RESULT hr = AMF_OK; // error checking can be added later
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
+    FBCAPTURE_STATUS AMDEncoder::getSequenceParams(uint8_t **sps, uint32_t *spsLen, uint8_t **pps, uint32_t *ppsLen) {
+//      amf::AMFVariant amfVar;
+//      const auto hr = encoder_->GetProperty(AMF_VIDEO_ENCODER_EXTRADATA, amfVar.ToInterface());
+//      if (hr != AMF_OK) {
+//        DEBUG_ERROR("Failed to get encoder extra data preporty for sequence paramter output.");
+//        return FBCAPTURE_GPU_ENCODER_GET_SEQUENCE_PARAMS_FAILED;
+//      }
+//
+//      amf::AMFBufferPtr amfBuffer(amfVar.ToInterface());
 
-      /*amf::AMFVariant amfVar;
-      hr = encoder_->GetProperty(AMF_VIDEO_ENCODER_EXTRADATA, amfVar.ToInterface());
-      if (hr != AMF_OK) {
-        DEBUG_ERROR("Failed to get encoder extra data preporty for sequence paramter output.");
-        return FBCAPTURE_GPU_ENCODER_GET_SEQUENCE_PARAMS_FAILED;
-      }
-
-      amf::AMFBufferPtr amfBuffer(amfVar.ToInterface());*/
-
-      return status;
+      return FBCAPTURE_OK;
     }
 
-    FBCAPTURE_STATUS AMDEncoder::fillSurface(amf::AMFContext *context, amf::AMFSurface *surface, bool needFlipping) {
-      AMF_RESULT hr = AMF_OK;
-      HRESULT hres;
-
+    FBCAPTURE_STATUS AMDEncoder::fillSurface(amf::AMFContext *context, amf::AMFSurface *surface, const bool needFlipping) const {
       // Copy frame buffer to resource
       D3D11_MAPPED_SUBRESOURCE resource;
-      ID3D11Texture2D *textureDX11 = (ID3D11Texture2D*)surface->GetPlaneAt(0)->GetNative(); // no reference counting - do not Release()
+      const auto textureDX11 = static_cast<ID3D11Texture2D*>(surface->GetPlaneAt(0)->GetNative()); // no reference counting - do not Release()
       ID3D11DeviceContext *contextDX11 = NULL;
 
       deviceDX11_->GetImmediateContext(&contextDX11);
       contextDX11->CopyResource(newTex_, tex_);
-      unsigned int subresource = D3D11CalcSubresource(0, 0, 0);
-      hres = contextDX11->Map(newTex_, subresource, D3D11_MAP_READ_WRITE, 0, &resource);
-      if (FAILED(hres)) {
+      const auto subresource = D3D11CalcSubresource(0, 0, 0);
+      auto hr = contextDX11->Map(newTex_, subresource, D3D11_MAP_READ_WRITE, 0, &resource);
+      if (FAILED(hr)) {
         DEBUG_ERROR("Failed to map texture");
         return FBCAPTURE_GPU_ENCODER_MAP_INPUT_TEXTURE_FAILED;
       }
 
       // Flip pixels
       if (needFlipping) {
-        unsigned char* pixel = (unsigned char*)resource.pData;
+        const auto pixel = static_cast<unsigned char*>(resource.pData);
         const unsigned int rows = heightIn_ / 2;
         const unsigned int rowStride = widthIn_ * 4;
-        unsigned char* tmpRow = (unsigned char*)malloc(rowStride);
-
-        int source_offset, target_offset;
+        const auto tmpRow = static_cast<unsigned char*>(malloc(rowStride));
 
         for (uint32_t rowIndex = 0; rowIndex < rows; rowIndex++) {
-          source_offset = rowIndex * rowStride;
-          target_offset = (heightIn_ - rowIndex - 1) * rowStride;
+          const int sourceOffset = rowIndex * rowStride;
+          const int targetOffset = (heightIn_ - rowIndex - 1) * rowStride;
 
-          memcpy(tmpRow, pixel + source_offset, rowStride);
-          memcpy(pixel + source_offset, pixel + target_offset, rowStride);
-          memcpy(pixel + target_offset, tmpRow, rowStride);
+          memcpy(tmpRow, pixel + sourceOffset, rowStride);
+          memcpy(pixel + sourceOffset, pixel + targetOffset, rowStride);
+          memcpy(pixel + targetOffset, tmpRow, rowStride);
         }
 
         free(tmpRow);
-        tmpRow = NULL;
       }
 
       contextDX11->CopyResource(textureDX11, newTex_);
@@ -478,14 +475,11 @@ namespace FBCapture {
       return FBCAPTURE_OK;
     }
 
-    FBCAPTURE_STATUS AMDEncoder::saveScreenShot(const void* texturePtr, const DestinationURL dstUrl, bool flipTexture) {
-      AMF_RESULT hr = AMF_OK; // error checking can be added later
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
-
+    FBCAPTURE_STATUS AMDEncoder::saveScreenShot(void* texturePtr, const DESTINATION_URL dstUrl, const bool flipTexture) {
       ID3D11Texture2D* newScreenShotTex;
       ID3D11Texture2D* screenShotTex;
       D3D11_TEXTURE2D_DESC desc;
-      newScreenShotTex = (ID3D11Texture2D*)texturePtr;
+      newScreenShotTex = static_cast<ID3D11Texture2D*>(texturePtr);
       newScreenShotTex->GetDesc(&desc);
       desc.BindFlags = 0;
       desc.MiscFlags &= D3D11_RESOURCE_MISC_TEXTURECUBE;
@@ -494,7 +488,7 @@ namespace FBCapture {
       desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
       if (g_AMFFactory.GetFactory() == NULL) {
-        hr = g_AMFFactory.Init();
+        const auto hr = g_AMFFactory.Init();
         if (hr != AMF_OK) {
           DEBUG_ERROR("Failed to initiate AMF");
           return FBCAPTURE_GPU_ENCODER_INIT_FAILED;
@@ -503,7 +497,7 @@ namespace FBCapture {
 
       // context
       if (context_ == NULL) {
-        hr = g_AMFFactory.GetFactory()->CreateContext(&context_);
+        auto hr = g_AMFFactory.GetFactory()->CreateContext(&context_);
         if (hr != AMF_OK) {
           DEBUG_ERROR("Failed to create AMF context");
           return FBCAPTURE_GPU_ENCODER_INIT_FAILED;
@@ -517,11 +511,11 @@ namespace FBCapture {
         }
       }
 
-      ID3D11Device* deviceDX11 = (ID3D11Device*)context_->GetDX11Device();
+      auto deviceDX11 = static_cast<ID3D11Device*>(context_->GetDX11Device());
       ID3D11DeviceContext *contextDX11 = NULL;
 
-      HRESULT hres = deviceDX11->CreateTexture2D(&desc, NULL, &screenShotTex);
-      if (FAILED(hres)) {
+      auto hr = deviceDX11->CreateTexture2D(&desc, NULL, &screenShotTex);
+      if (FAILED(hr)) {
         DEBUG_ERROR("Failed to create texture 2d");
         return FBCAPTURE_GPU_ENCODER_INIT_FAILED;
       }
@@ -530,49 +524,46 @@ namespace FBCapture {
 
       deviceDX11->GetImmediateContext(&contextDX11);
       contextDX11->CopyResource(screenShotTex, newScreenShotTex);
-      unsigned int subresource = D3D11CalcSubresource(0, 0, 0);
-      hres = contextDX11->Map(screenShotTex, subresource, D3D11_MAP_READ_WRITE, 0, &resource);
-      if (FAILED(hres)) {
+      const auto subresource = D3D11CalcSubresource(0, 0, 0);
+      hr = contextDX11->Map(screenShotTex, subresource, D3D11_MAP_READ_WRITE, 0, &resource);
+      if (FAILED(hr)) {
         DEBUG_ERROR("Failed to map texture");
         return FBCAPTURE_GPU_ENCODER_MAP_INPUT_TEXTURE_FAILED;
       }
 
       // Flip pixels
       if (flipTexture) {
-        unsigned char* pixel = (unsigned char*)resource.pData;
-        const unsigned int rows = desc.Height / 2;
-        const unsigned int rowStride = desc.Width * 4;
-        unsigned char* tmpRow = (unsigned char*)malloc(rowStride);
-
-        int source_offset, target_offset;
+        const auto pixel = static_cast<unsigned char*>(resource.pData);
+        const auto rows = desc.Height / 2;
+        const auto rowStride = desc.Width * 4;
+        const auto tmpRow = static_cast<unsigned char*>(malloc(rowStride));
 
         for (uint32_t rowIndex = 0; rowIndex < rows; rowIndex++) {
-          source_offset = rowIndex * rowStride;
-          target_offset = (desc.Height - rowIndex - 1) * rowStride;
+          const int sourceOffset = rowIndex * rowStride;
+          const int targetOffset = (desc.Height - rowIndex - 1) * rowStride;
 
-          memcpy(tmpRow, pixel + source_offset, rowStride);
-          memcpy(pixel + source_offset, pixel + target_offset, rowStride);
-          memcpy(pixel + target_offset, tmpRow, rowStride);
+          memcpy(tmpRow, pixel + sourceOffset, rowStride);
+          memcpy(pixel + sourceOffset, pixel + targetOffset, rowStride);
+          memcpy(pixel + sourceOffset, tmpRow, rowStride);
         }
 
         free(tmpRow);
-        tmpRow = NULL;
       }
 
       // Unmap buffer
       contextDX11->Unmap(screenShotTex, 0);
 
-      // Screen Capture: Save texture to image file
-      hres = SaveWICTextureToFile(contextDX11, screenShotTex, GUID_ContainerFormatJpeg, dstUrl);
-      if (FAILED(hres)) {
-        DEBUG_ERROR("Failed to save texture to file");
+      // Screen Capture: Save texture to image file_
+      hr = SaveWICTextureToFile(contextDX11, screenShotTex, GUID_ContainerFormatJpeg, dstUrl);
+      if (FAILED(hr)) {
+        DEBUG_ERROR("Failed to save texture to file_");
         return FBCAPTURE_GPU_ENCODER_WIC_SAVE_IMAGE_FAILED;
       }
 
       SAFE_RELEASE(screenShotTex);
       SAFE_RELEASE(newScreenShotTex);
 
-      return status;
+      return FBCAPTURE_OK;
     }
   }
 }

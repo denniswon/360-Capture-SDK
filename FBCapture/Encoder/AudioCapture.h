@@ -8,18 +8,9 @@ Copyright	:
 #pragma once
 #define _WINSOCKAPI_
 #include <Windows.h>
-#include <chrono>
-#include <iostream>
 #include <mmdeviceapi.h>
 #include <audioclient.h>
-#include <iostream>
-#include <initguid.h>
-#include <stdio.h>
-#include <mmsystem.h>
-#include <mmdeviceapi.h>
-#include <avrt.h>
 #include <regex>
-#include <functiondiscoverykeys_devpkey.h>
 
 #define RIFT_AUDIO_SOURCE L"Rift Audio"
 
@@ -50,52 +41,66 @@ namespace FBCapture {
 
       FBCAPTURE_STATUS initialize(bool mixMic, bool useRiftAudioSources);
       FBCAPTURE_STATUS captureAudio();
-      FBCAPTURE_STATUS stopAudioCapture();
+      FBCAPTURE_STATUS stopAudioCapture() const;
       FBCAPTURE_STATUS getOutputBuffer(const float** outputBuffer, size_t* numSamples, uint64_t* pts, uint64_t* duration, bool mute);
-      FBCAPTURE_STATUS getOutputWavFormat(WAVEFORMATEX **pwfx);
+      FBCAPTURE_STATUS getOutputWavFormat(WAVEFORMATEX **pwfx) const;
 
     private:
-      HRESULT findAudioSource(IMMDevice** audioDevice, LPWSTR* audioSource, bool useRiftAudioSources, EDataFlow flow);
-      HRESULT startAudioclient(IMMDevice *audioDevice, IAudioClient** audioClient, IAudioCaptureClient** captureClient, IAudioClock** clockClient, WAVEFORMATEX **pwfx, EDataFlow flow);
-      HRESULT captureAudioFromClient(IAudioCaptureClient* audioCaptureClient, IAudioClock* audioClockClient, uint8_t** data, uint32_t* numFrames, LONGLONG* timestamp);
+      HRESULT findAudioSource(IMMDevice** audioDevice,
+                              LPWSTR* audioSource,
+                              bool useRiftAudioSources,
+                              EDataFlow flow) const;
 
-      HRESULT openFile(LPCWSTR szFileName, HMMIO *phFile);
-      HRESULT writeWaveHeader(HMMIO file, WAVEFORMATEX *outputPWFX, MMCKINFO *pckRiff, MMCKINFO *pckData);
-      HRESULT writeToFile(AudioBuffer *buffer, bool mute);
-      HRESULT closeWavefile(HMMIO *file, MMCKINFO *pckRiff, MMCKINFO *pckData);
+      static HRESULT startAudioclient(IMMDevice *audioDevice,
+                                      IAudioClient** audioClient,
+                                      IAudioCaptureClient** captureClient,
+                                      IAudioClock** clockClient,
+                                      WAVEFORMATEX **pwfx,
+                                      EDataFlow flow);
+
+      HRESULT captureAudioFromClient(IAudioCaptureClient* audioCaptureClient,
+                                     IAudioClock* audioClockClient,
+                                     uint8_t** data,
+                                     uint32_t* numFrames,
+                                     LONGLONG* timestamp) const;
+
+      static HRESULT openFile(LPCWSTR szFileName, HMMIO *phFile);
+      static HRESULT writeWaveHeader(HMMIO file, WAVEFORMATEX *outputPwfx, MMCKINFO *pckRiff, MMCKINFO *pckData);
+      HRESULT writeToFile(AudioBuffer *buffer, bool mute) const;
+      static HRESULT closeWavefile(HMMIO *file, MMCKINFO *pckRiff, MMCKINFO *pckData);
 
     private:
-      IMMDeviceEnumerator *deviceEnumerator;
+      IMMDeviceEnumerator *deviceEnumerator_;
 
-      LPWSTR inputAudioSource;
-      IAudioClient* outputAudioClient;
-      IAudioCaptureClient* outputAudioCaptureClient;
-      IAudioClock* outputAudioClock;
-      IMMDevice *outputAudioDevice;
-      WAVEFORMATEX *outputPWFX;
+      LPWSTR inputAudioSource_;
+      IAudioClient* outputAudioClient_;
+      IAudioCaptureClient* outputAudioCaptureClient_;
+      IAudioClock* outputAudioClock_;
+      IMMDevice *outputAudioDevice_;
+      WAVEFORMATEX *outputPwfx_;
 
-      LPWSTR outputAudioSource;
-      IAudioClient* inputAudioClient;
-      IAudioCaptureClient* inputAudioCaptureClient;
-      IAudioClock* inputAudioClock;
-      IMMDevice* inputAudioDevice;
-      WAVEFORMATEX *inputPWFX;
+      LPWSTR outputAudioSource_;
+      IAudioClient* inputAudioClient_;
+      IAudioCaptureClient* inputAudioCaptureClient_;
+      IAudioClock* inputAudioClock_;
+      IMMDevice* inputAudioDevice_;
+      WAVEFORMATEX *inputPwfx_;
 
-      AudioBuffer* buffer;
-      HMMIO file;
-      LPCWSTR outputFile;
+      AudioBuffer* buffer_;
+      HMMIO file_;
+      LPCWSTR outputFile_;
 
       bool mixMic_;
 
-      uint32_t totalOutputNumSamples;
-      ULONG totalOutputBytesLength;
-      uint64_t totalOutputDuration;         // 100-nanosecond unit
+      uint32_t totalOutputNumSamples_;
+      ULONG totalOutputBytesLength_;
+      uint64_t totalOutputDuration_;         // 100-nanosecond unit
 
-      LONGLONG outputTimePosition;
-      LONGLONG inputTimePosition;
+      LONGLONG outputTimePosition_;
+      LONGLONG inputTimePosition_;
 
-      uint64_t outputTimestamp;
-      uint64_t outputDuration;
+      uint64_t outputTimestamp_;
+      uint64_t outputDuration_;
     };
 
   }

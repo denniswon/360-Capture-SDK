@@ -8,12 +8,8 @@ Copyright	:
 
 #pragma once
 #define _WINSOCKAPI_
-#include <Windows.h>
-#include <math.h>
-#include <wincodec.h>
 #include "AMD/common/AMFFactory.h"
 #include "AMD/include/components/VideoEncoderVCE.h"
-#include "AMD/include/components/VideoEncoderHEVC.h"
 #include "AMD/common/Thread.h"
 #include "AMD/common/AMFSTL.h"
 
@@ -21,7 +17,7 @@ Copyright	:
 
 #define START_TIME_PROPERTY L"StartTimeProperty" // custom property ID to store submission time in a frame - all custom properties are copied from input to output
 #define TIME_STAMP L"TimeStamp"                  // custom property ID to store input time stamp of the frame
-#define MILLISEC_TIME     10000
+#define MILLISEC_TIME 10000
 
 //--------------------------------------------------------------------------------------------------------------
 // *** SAFE_RELEASE macro
@@ -40,7 +36,7 @@ namespace FBCapture {
     public:
       PollingThread(amf::AMFContext *context, amf::AMFComponent *encoder, const char *pFileName);
       ~PollingThread();
-      virtual void Run();
+      void Run() override;
     };
 
     class AMDEncoder : public GPUEncoder {
@@ -48,10 +44,15 @@ namespace FBCapture {
       AMDEncoder();
       ~AMDEncoder();
 
-      FBCAPTURE_STATUS encode(const void* texturePtr) override;
-      FBCAPTURE_STATUS processOutput(void **buffer, uint32_t *length, uint64_t *timestamp, uint64_t *duration, uint32_t *frameIdx, bool *isKeyframe) override;
+      FBCAPTURE_STATUS encode(void* texturePtr) override;
+      FBCAPTURE_STATUS processOutput(void **buffer,
+                                     uint32_t *length,
+                                     uint64_t *timestamp,
+                                     uint64_t *duration,
+                                     uint32_t *frameIdx,
+                                     bool *isKeyframe) override;
       FBCAPTURE_STATUS finalize() override;
-      FBCAPTURE_STATUS saveScreenShot(const void* texturePtr, const DestinationURL dstUrl, bool flipTexture) override;
+      FBCAPTURE_STATUS saveScreenShot(void* texturePtr, const DESTINATION_URL dstUrl, bool flipTexture) override;
       FBCAPTURE_STATUS getSequenceParams(uint8_t **sps, uint32_t *spsLen, uint8_t **pps, uint32_t *ppsLen) override;
       uint32_t getPendingCount() override;
 
@@ -83,8 +84,8 @@ namespace FBCapture {
       FILE *file_;
 
     protected:
-      FBCAPTURE_STATUS initialization(const void* texturePtr);
-      FBCAPTURE_STATUS fillSurface(amf::AMFContext *context, amf::AMFSurface *surface, bool needFlipping);
+      FBCAPTURE_STATUS initialization(void* texturePtr);
+      FBCAPTURE_STATUS fillSurface(amf::AMFContext *context, amf::AMFSurface *surface, bool needFlipping) const;
     };
   }
 }

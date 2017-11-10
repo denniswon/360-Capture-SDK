@@ -18,7 +18,7 @@ namespace FBCapture {
     const string Transmuxer::kStitchingSoftware = "Facebook 360 Capture SDK";
 
     Transmuxer::Transmuxer(FBCaptureDelegate *mainDelegate,
-                           bool enableAsyncMode) :
+                           const bool enableAsyncMode) :
       FBCaptureModule(mainDelegate),
       h264FilePath_(NULL),
       aacFilePath_(NULL),
@@ -27,7 +27,7 @@ namespace FBCapture {
     }
 
     Transmuxer::~Transmuxer() {
-      finalize();
+      Transmuxer::finalize();
     }
 
     FBCAPTURE_STATUS Transmuxer::setInput(const string* h264FilePath,
@@ -47,7 +47,7 @@ namespace FBCapture {
       FBCAPTURE_STATUS status = FBCAPTURE_OK;
 
       // A/V muxing h264 and aac to mp4
-      uint32_t nErrorCode = mp4muxAVStreams(
+      auto nErrorCode = mp4muxAVStreams(
         (*h264FilePath_).c_str(),
         (*aacFilePath_).c_str(),
         (*mp4FilePath_).c_str(),
@@ -55,7 +55,7 @@ namespace FBCapture {
         0.0f,
         NO_DURATION_SPECIFIED,
         UNKNOWN_FRAMES_PER_SECOND,
-        (eVideoRotationMode)VIDEO_ROTATION_MODE_NO_ROTATION,
+        static_cast<eVideoRotationMode>(VIDEO_ROTATION_MODE_NO_ROTATION),
         false);
 
       if (0 != nErrorCode) {
@@ -67,21 +67,21 @@ namespace FBCapture {
       // After muxing, inject spherical video metadata
       Utils utils;
       Metadata md;
-      string &strVideoXML = utils.generate_spherical_xml(
+      auto& strVideoXml = utils.generate_spherical_xml(
         Projection::EQUIRECT,
         StereoMode::SM_NONE,
         kStitchingSoftware,
         NULL
       );
 
-      if (strVideoXML.length() <= 1) {
+      if (strVideoXml.length() <= 1) {
         DEBUG_ERROR("Failed to generate spherical video metadata.");
         status = FBCAPTURE_METADATA_INVALID;
         return status;
       }
-      md.setVideoXML(strVideoXML);
+      md.setVideoXML(strVideoXml);
 
-      string outputFile = APPEND_METADATA_SUFFIX
+      auto outputFile = APPEND_METADATA_SUFFIX
         ? ChangeFileExt(*mp4FilePath_, kMp4Ext, kMetadataExt)
         : *mp4FilePath_;
 
@@ -97,8 +97,8 @@ namespace FBCapture {
       h264FilePath_ = NULL;
       aacFilePath_ = NULL;
 
-      // if metadata injecteion creates a new file, remove the input mp4 file
-      if (APPEND_METADATA_SUFFIX)
+      // if metadata injecteion creates a new file_, remove the input mp4 file_
+      if (true)
         remove((*mp4FilePath_).c_str());
       mp4FilePath_ = NULL;
       return FBCAPTURE_OK;

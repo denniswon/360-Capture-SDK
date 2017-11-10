@@ -7,26 +7,28 @@ Copyright	:
 ****************************************************************************************************************/
 
 #include "Log.h"
+#include <sstream>
+#include <iomanip>
 
 namespace FBCapture {
 
   const string Log::kLog = "[LOG]";
   const string Log::kError = "[ERROR]";
-  const char* Log::kLogFile = "FBCaptureSDK.txt";
-  Log* Log::kInstance = nullptr;
-  mutex Log::mutex_;
+  const char* Log::logFile = "FBCaptureSDK.txt";
+  Log* Log::singleton = nullptr;
+  mutex Log::mtx;
 
   Log& Log::instance() {
-    lock_guard<mutex> lock(mutex_);
-    if (kInstance == nullptr)
-      kInstance = new Log();
-    return *kInstance;
+    lock_guard<mutex> lock(mtx);
+    if (singleton == nullptr)
+      singleton = new Log();
+    return *singleton;
   }
 
   void Log::release() {
-    lock_guard<mutex> lock(Log::mutex_);
-    delete Log::kInstance;
-    Log::kInstance = nullptr;
+    lock_guard<mutex> lock(Log::mtx);
+    delete Log::singleton;
+    Log::singleton = nullptr;
   }
 
   Log::~Log() {
@@ -34,19 +36,19 @@ namespace FBCapture {
   }
 
   Log::Log() {
-    output_.open(kLogFile, ios_base::out);
+    output_.open(logFile, ios_base::out);
     if (!output_.good()) {
       throw runtime_error("Initialization is failed");
     }
   }
 
   void Log::log(const string& log, const string& logType) {
-    lock_guard<mutex> lock(mutex_);
+    lock_guard<mutex> lock(mtx);
     logWriter(log, logType);
   }
 
   void Log::log(const string& log, const string& var, const string& logType) {
-    lock_guard<mutex> lock(mutex_);
+    lock_guard<mutex> lock(mtx);
     logWriter(log, var, logType);
   }
 
@@ -59,7 +61,7 @@ namespace FBCapture {
   }
 
   string Log::getCurrentTime() {
-    auto now = chrono::system_clock::now();
+    const auto now = chrono::system_clock::now();
     auto time = chrono::system_clock::to_time_t(now);
 
     stringstream timeStamp;

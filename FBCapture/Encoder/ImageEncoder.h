@@ -9,28 +9,28 @@ namespace FBCapture {
     class ImageEncoder : public FBCaptureModule {
     public:
       ImageEncoder(FBCaptureDelegate *mainDelegate,
-                   GraphicsCardType graphicsCardType,
+                   GRAPHICS_CARD_TYPE graphicsCardType,
                    ID3D11Device* device,
                    bool enableAsyncMode);
       ~ImageEncoder();
 
-      FBCAPTURE_STATUS setInput(const void *texturePtr, DestinationURL dstUrl, bool flipTexture);
+      FBCAPTURE_STATUS setInput(void *texturePtr, DESTINATION_URL dstUrl, bool flipTexture);
 
     protected:
-      GPUEncoder* gpuEncoder;
+      GPUEncoder* gpuEncoder_;
 
       ID3D11Device* device_;
-      GraphicsCardType graphicsCardType_;
+      GRAPHICS_CARD_TYPE graphicsCardType_;
 
-      const void *texturePtr_;
+      void *texturePtr_;
       wchar_t* jpgFilePath_;
       bool flipTexture_;
 
       /* FBCaptureModule */
 
-      FBCAPTURE_STATUS init();
-      FBCAPTURE_STATUS process();
-      FBCAPTURE_STATUS finalize();
+      FBCAPTURE_STATUS init() override;
+      FBCAPTURE_STATUS process() override;
+      FBCAPTURE_STATUS finalize() override;
       bool continueLoop() override;
     };
   }

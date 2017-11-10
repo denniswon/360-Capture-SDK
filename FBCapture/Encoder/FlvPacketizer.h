@@ -1,17 +1,14 @@
 #pragma once
 
 /*
-* @file FlvPacketizer.h
+* @file_ FlvPacketizer.h
 * @author Jong Hyuck Won
 * @date 2017/09/14
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include <stdint.h>
-#include <inttypes.h>
 
 #include "EncodePacket.h"
 #include "FBCaptureStatus.h"
@@ -57,38 +54,56 @@ namespace FBCapture {
       FlvPacketizer();
       ~FlvPacketizer();
 
-      FBCAPTURE_STATUS packetizeVideo(VideoEncodePacket* packet, uint8_t** flv_packet);
-      FBCAPTURE_STATUS packetizeAudio(AudioEncodePacket* packet, uint8_t** flv_packet);
+      FBCAPTURE_STATUS packetizeVideo(VideoEncodePacket* packet, uint8_t** flvPacket) const;
+      FBCAPTURE_STATUS packetizeAudio(AudioEncodePacket* packet, uint8_t** flvPacket) const;
 
-      FBCAPTURE_STATUS getFlvHeader(bool haveAudio, bool haveVideo, uint8_t** flv_header);
-      FBCAPTURE_STATUS getAacSeqHeaderTag(int profile_level, int sample_rate, int num_channels, uint8_t** aac_seq_header_packet);
-      FBCAPTURE_STATUS getAacDataTag(const uint8_t *data, uint32_t data_len, uint32_t timestamp, uint8_t** aac_dat_packeta);
-      FBCAPTURE_STATUS getAvcSeqHeaderTag(const uint8_t *sps, uint32_t sps_len, const uint8_t *pps, uint32_t pps_len, uint8_t** avc_seq_header_packet);
-      FBCAPTURE_STATUS getAvcDataTag(const uint8_t *data, uint32_t data_len, uint32_t timestamp, int is_keyframe, uint8_t** avc_data_packet);
+      static FBCAPTURE_STATUS getFlvHeader(bool haveAudio, bool haveVideo, uint8_t** flvHeader);
 
-      FBCAPTURE_STATUS getPreviousTagSize(uint8_t** prev_tag_size);
+      FBCAPTURE_STATUS getAacSeqHeaderTag(int profileLevel,
+                                          int sampleRate,
+                                          int numChannels,
+                                          uint8_t** aacSeqHeaderPacket) const;
+
+      FBCAPTURE_STATUS getAacDataTag(const uint8_t *data,
+                                     uint32_t dataLen,
+                                     uint32_t timestamp,
+                                     uint8_t** aacDatPacketa) const;
+
+      FBCAPTURE_STATUS getAvcSeqHeaderTag(const uint8_t *sps,
+                                          uint32_t spsLen,
+                                          const uint8_t *pps,
+                                          uint32_t ppsLen,
+                                          uint8_t** avcSeqHeaderPacket) const;
+
+      FBCAPTURE_STATUS getAvcDataTag(const uint8_t *data,
+                                     uint32_t dataLen,
+                                     uint32_t timestamp,
+                                     int isKeyframe,
+                                     uint8_t** avcDataPacket) const;
+
+      FBCAPTURE_STATUS getPreviousTagSize(uint8_t** prevTagSize) const;
 
     private:
 
-      uint8_t* prev_size;
+      uint8_t* prevSize_;
 
     public:
 
-      bool setFLVTag(FLV_TAG_TYPE type, uint8_t *buf, uint32_t buf_len, uint32_t timestamp, uint8_t **tagged_data);
+      bool setFlvTag(FLV_TAG_TYPE type, uint8_t *buf, uint32_t bufLen, uint32_t timestamp, uint8_t **taggedData) const;
 
-      static inline uint8_t *ui08ToBytes(uint8_t *buf, uint8_t val) {
+      static inline uint8_t *ui08ToBytes(uint8_t *buf, const uint8_t val) {
         buf[0] = (val) & 0xff;
         return buf + 1;
       }
 
-      static inline uint8_t *ui16ToBytes(uint8_t *buf, uint16_t val) {
+      static inline uint8_t *ui16ToBytes(uint8_t *buf, const uint16_t val) {
         buf[0] = (val >> 8) & 0xff;
         buf[1] = (val) & 0xff;
 
         return buf + 2;
       }
 
-      static inline uint8_t *ui24ToBytes(uint8_t *buf, uint32_t val) {
+      static inline uint8_t *ui24ToBytes(uint8_t *buf, const uint32_t val) {
         buf[0] = (val >> 16) & 0xff;
         buf[1] = (val >> 8) & 0xff;
         buf[2] = (val) & 0xff;
@@ -96,7 +111,7 @@ namespace FBCapture {
         return buf + 3;
       }
 
-      static inline uint8_t *ui32ToBytes(uint8_t *buf, uint32_t val) {
+      static inline uint8_t *ui32ToBytes(uint8_t *buf, const uint32_t val) {
         buf[0] = (val >> 24) & 0xff;
         buf[1] = (val >> 16) & 0xff;
         buf[2] = (val >> 8) & 0xff;
@@ -105,7 +120,7 @@ namespace FBCapture {
         return buf + 4;
       }
 
-      static inline uint8_t *ui64ToBytes(uint8_t *buf, uint64_t val) {
+      static inline uint8_t *ui64ToBytes(uint8_t *buf, const uint64_t val) {
         buf[0] = (val >> 56) & 0xff;
         buf[1] = (val >> 48) & 0xff;
         buf[2] = (val >> 40) & 0xff;
@@ -118,7 +133,7 @@ namespace FBCapture {
         return buf + 8;
       }
 
-      static inline uint8_t *doubleToBytes(uint8_t *buf, double val) {
+      static inline uint8_t *doubleToBytes(uint8_t *buf, const double val) {
         union {
           uint8_t dc[8];
           double dd;
@@ -150,25 +165,24 @@ namespace FBCapture {
       }
 
       static inline uint8_t *amfStringToBytes(uint8_t *buf, const char *str) {
-        uint8_t *pbuf = buf;
-        size_t len = strlen(str);
-        pbuf = ui16ToBytes(pbuf, (uint16_t)len);
+        auto pbuf = buf;
+        const auto len = strlen(str);
+        pbuf = ui16ToBytes(pbuf, static_cast<uint16_t>(len));
         memcpy(pbuf, str, len);
         pbuf += len;
-
         return pbuf;
       }
 
-      static inline uint8_t *amf_double_to_bytes(uint8_t *buf, double d) {
-        uint8_t *pbuf = buf;
+      static inline uint8_t *amfDoubleToBytes(uint8_t *buf, const double d) {
+        auto pbuf = buf;
         pbuf = ui08ToBytes(pbuf, AMF_DATA_NUMBER);
         pbuf = doubleToBytes(pbuf, d);
 
         return pbuf;
       }
 
-      static inline uint8_t *amf_bool_to_bytes(uint8_t *buf, int b) {
-        uint8_t *pbuf = buf;
+      static inline uint8_t *amfBoolToBytes(uint8_t *buf, const int b) {
+        auto pbuf = buf;
         pbuf = ui08ToBytes(pbuf, AMF_DATA_BOOL);
         pbuf = ui08ToBytes(pbuf, !!b);
 

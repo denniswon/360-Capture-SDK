@@ -13,6 +13,7 @@ namespace FBCapture {
 
   class FBCaptureDelegate {
   public:
+    virtual ~FBCaptureDelegate() = default;
     virtual void onFinish() = 0;
     virtual void onFailure(FBCAPTURE_STATUS status) = 0;
   };
@@ -29,23 +30,25 @@ namespace FBCapture {
                             // for non-blocking operation. default true.
 
   public:
-    FBCaptureModule(FBCaptureDelegate *delegate) :
-      main(delegate),
+    explicit FBCaptureModule(FBCaptureDelegate *delegate) :
+      thread_(NULL),
       stopRequested_(false),
       isRunning_(false),
       enableAsyncMode_(true),
-      thread_(NULL) {}
+      main_(delegate) {}
 
     virtual ~FBCaptureModule() {
+      if (!stopRequested_.load())
+        FBCaptureModule::finish();
+
       if (thread_) {
         delete thread_;
-        thread_ = NULL;
+        thread_ = nullptr;
       }
     }
 
     virtual FBCAPTURE_STATUS start() {
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
-      status = init();
+      auto status = init();
       if (status != FBCAPTURE_OK)
         return status;
 
@@ -57,7 +60,7 @@ namespace FBCapture {
     }
 
     virtual FBCAPTURE_STATUS stop() {
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
+      const auto status = FBCAPTURE_OK;
       if (stopRequested_)
         return status;
 
@@ -83,7 +86,7 @@ namespace FBCapture {
     }
 
   protected:
-    FBCaptureDelegate *main;
+    FBCaptureDelegate *main_;
 
     virtual FBCAPTURE_STATUS init() = 0;
     virtual FBCAPTURE_STATUS finalize() = 0;
@@ -94,25 +97,23 @@ namespace FBCapture {
     }
 
     virtual FBCAPTURE_STATUS finish() {
-      FBCAPTURE_STATUS status = finalize();
+      const auto status = finalize();
       if (status != FBCAPTURE_OK)
-        main->onFailure(status);
-      main->onFinish();
+        main_->onFailure(status);
+      main_->onFinish();
       isRunning_ = false;
       return status;
     }
 
     virtual FBCAPTURE_STATUS run() {
-      FBCAPTURE_STATUS status = FBCAPTURE_OK;
       isRunning_ = true;
-
-      bool loop = !stopRequested_.load();
+      auto loop = !stopRequested_.load();
       while (loop) {
         if (stopRequested_.load())
           break;
-        status = process();
+        const auto status = process();
         if (status != FBCAPTURE_OK) {
-          main->onFailure(status);
+          main_->onFailure(status);
           return status;
         }
         loop = continueLoop();

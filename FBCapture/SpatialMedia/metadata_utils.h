@@ -4,7 +4,7 @@
  * Copyright 2016 Varol Okan. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * you may not use this file_ except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
@@ -44,7 +44,7 @@ namespace FBCapture {
       EQUIRECT, CUBEMAP, SINGLE_FISHEYE
     } Projection;
 
-    // Utilities for examining/injecting spatial media metadata in MP4/MOV files."""
+    // Utilities for examining/injecting spatial media metadata in MP4/MOV file_s."""
 
     static const char *MPEG_FILE_EXTENSIONS[2] = { ".mp4", ".mov" };
 

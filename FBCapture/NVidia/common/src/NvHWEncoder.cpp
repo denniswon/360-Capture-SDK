@@ -27,18 +27,18 @@ NVENCSTATUS CNvHWEncoder::NvEncGetEncodeGUIDCount(uint32_t* encodeGUIDCount) {
   return nvStatus;
 }
 
-NVENCSTATUS CNvHWEncoder::NvEncGetEncodeProfileGUIDCount(GUID encodeGUID, uint32_t* encodeProfileGUIDCount) {
+NVENCSTATUS CNvHWEncoder::NvEncGetEncodeProfile_GUIDCount(GUID encodeGUID, uint32_t* encodeProfile_GUIDCount) {
   NVENCSTATUS nvStatus = NV_ENC_SUCCESS;
 
-  nvStatus = m_pEncodeAPI->nvEncGetEncodeProfileGUIDCount(m_hEncoder, encodeGUID, encodeProfileGUIDCount);
+  nvStatus = m_pEncodeAPI->nvEncGetEncodeProfileGUIDCount(m_hEncoder, encodeGUID, encodeProfile_GUIDCount);
 
   return nvStatus;
 }
 
-NVENCSTATUS CNvHWEncoder::NvEncGetEncodeProfileGUIDs(GUID encodeGUID, GUID* profileGUIDs, uint32_t guidArraySize, uint32_t* GUIDCount) {
+NVENCSTATUS CNvHWEncoder::NvEncGetEncodeProfile_GUIDs(GUID encodeGUID, GUID* profile_GUIDs, uint32_t guidArraySize, uint32_t* GUIDCount) {
   NVENCSTATUS nvStatus = NV_ENC_SUCCESS;
 
-  nvStatus = m_pEncodeAPI->nvEncGetEncodeProfileGUIDs(m_hEncoder, encodeGUID, profileGUIDs, guidArraySize, GUIDCount);
+  nvStatus = m_pEncodeAPI->nvEncGetEncodeProfileGUIDs(m_hEncoder, encodeGUID, profile_GUIDs, guidArraySize, GUIDCount);
 
   return nvStatus;
 }
@@ -998,7 +998,7 @@ NVENCSTATUS CNvHWEncoder::NvEncFinalize(void *hEOSEvent) {
 
 NVENCSTATUS CNvHWEncoder::ParseArguments(EncodeConfig *encodeConfig, int argc, char *argv[]) {
   for (int i = 1; i < argc; i++) {
-    if (stricmp(argv[i], "-bmpfilePath") == 0) {
+    if (stricmp(argv[i], "-bmpfile_Path") == 0) {
       if (++i >= argc) {
         PRINTERR("invalid parameter for %s\n", argv[i - 1]);
         return NV_ENC_ERR_INVALID_PARAM;
@@ -1015,7 +1015,7 @@ NVENCSTATUS CNvHWEncoder::ParseArguments(EncodeConfig *encodeConfig, int argc, c
         PRINTERR("invalid parameter for %s\n", argv[i - 1]);
         return NV_ENC_ERR_INVALID_PARAM;
       }
-      encodeConfig->outputFileName = argv[i];
+      encodeConfig->outputFile_Name = argv[i];
     } else if (stricmp(argv[i], "-size") == 0) {
       if (++i >= argc || sscanf(argv[i], "%d", &encodeConfig->width) != 1) {
         PRINTERR("invalid parameter for %s\n", argv[i - 1]);
